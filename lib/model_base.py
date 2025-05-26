@@ -7,7 +7,7 @@ from sklearn.metrics import mean_squared_error
 from matplotlib import pyplot
 from tensorflow.keras.models import Sequential
 from tensorflow.keras.layers import Dense, Input
-from tensorflow.keras.layers import LSTM, Dropout
+from tensorflow.keras.layers import LSTM, Dropout, Bidirectional
 from tensorflow.keras.optimizers import Adam
 import tensorflow as tf
 from lib.globalvar import ENTIRE_NUMBER, TOT_NUMBER_OF_GTH
@@ -167,11 +167,14 @@ class BaseLSTM:
         steps: int,
         metrics: str,
         lstm_units: list,
-        last_lstm_return_sequences: bool = False,
-        dense_units: list = None,
-        output_dense_activation: str = None,
-        loss: str = None,
-        rand_seed: int = 0):
+        last_lstm_return_sequences: bool=False,
+        return_state=False,
+        dense_units: list=None,
+        output_dense_activation: str=None,
+        loss: str=None,
+        stateful=False,
+        lstm_model="LSTM",
+        rand_seed: int=0):
         """
         LSTM 네트워크를 생성한 결과를 반환한다.
         :param seq_len: Length of sequences. (Look back window size)
@@ -185,7 +188,13 @@ class BaseLSTM:
         :param last_lstm_return_sequences: Last LSTM's `return_sequences`. Allow when `single_output=False` only.
         :param dense_units: list of number and activation  for cells each Dense layers. exam: [(12, 'relu'), .. ]
         :param loss: Loss, example = "MSE" or "binary_crossentropy"
+        :param lstm_model: str, example = "LSTM" or "Bidirectional"
         """
+        # lstm_class={"LSTM": LSTM, "Bidirectional": Bidirectional}
+        # if lstm_model not in lstm_class:
+        #     cur_lstm_class = Sequential
+        # else:
+        #     cur_lstm_class = lstm_class[lstm_model]
         if rand_seed > 0:
             tf.random.set_seed(rand_seed)
         model = Sequential()
@@ -196,11 +205,29 @@ class BaseLSTM:
             print(f'lstm unit : {i}, {units}')
             if i == len(lstm_units):
                 return_sequences = last_lstm_return_sequences
-            model.add(
-                LSTM(units=units[0],
-                     activation=units[1],
-                     return_sequences=return_sequences
-                     )
+            if lstm_model=="LSTM":
+                model.add(
+                    LSTM(units=units[0],
+                         activation=units[1],
+                         stateful=stateful,
+                         return_sequences=return_sequences,
+                         return_state=return_state
+                         ))
+            else:
+                k_init = tf.keras.initializers.Constant(value=0.1)
+                b_init = tf.keras.initializers.Constant(value=0)
+                r_init = tf.keras.initializers.Constant(value=0.1)
+                model.add(
+                    Bidirectional(
+                        LSTM(units=units[0],
+                             activation=units[1],
+                             stateful=stateful,
+                             return_sequences=return_sequences,
+                             return_state=return_state,
+                             kernel_initializer=k_init,
+                             bias_initializer=b_init,
+                             recurrent_initializer=r_init
+                             ))
                 )
         if len(dense_units) > 0 and last_lstm_return_sequences:
             model.add(Flatten())

@@ -154,3 +154,26 @@ def print_dict_list(title: str, datas: [], is_sort=False, is_reverse=False):
 def print_title(title=""):
     """ print_title """
     print(f'{"*"*30}\n\t{title}\n{"*"*30}')
+
+
+def listinlist_2_strinlist(list_in_list):
+    """ listinlist_2_strinlist """
+    str_in_list = []
+    for l in list_in_list:
+        str_in_list.append(",".join(l))
+    return str_in_list      
+
+
+def change_matched_info(matched_count, matched_list):
+    """ change_matched_info """
+    counts = {}
+    cnt = 1
+    for c in matched_count:
+        counts[cnt] = ",".join([ str(i) for i in c])
+        cnt += 1
+    cnt = 1
+    datas = {}
+    for d in matched_list:
+        datas[cnt] = d
+        cnt += 1
+    return counts, datas

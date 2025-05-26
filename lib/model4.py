@@ -107,6 +107,21 @@ class PredictLSTM4(BaseLSTM):
         else:
             rand_seed = 0
 
+        if 'stateful' in args[0]:
+            stateful = args[0]['stateful']
+        else:
+            stateful = False
+
+        if 'lstm_model' in args[0]:
+            lstm_model = args[0]['lstm_model']
+        else:
+            lstm_model = "LSTM"
+
+        if 'return_state' in args[0]:
+            return_state = args[0]['return_state']
+        else:
+            return_state = False
+
         return self.build_and_compile_lstm_model(
             seq_len=train_X.shape[1],
             n_features=train_X.shape[2],
@@ -115,10 +130,13 @@ class PredictLSTM4(BaseLSTM):
             steps=steps,
             metrics=metrics,
             last_lstm_return_sequences=last_lstm_return_sequences,
+            return_state=return_state,
             lstm_units=lstm_units,
             dense_units=dense_units,
             output_dense_activation=output_dense_activation,
             loss=loss,
+            stateful=stateful,
+            lstm_model=lstm_model,
             rand_seed=rand_seed
             )
 

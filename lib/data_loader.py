@@ -14,18 +14,27 @@ class DataLoader:
     - split_ratio : to decide length of training / test
     """
 
-    def __init__(self, data_dir, training_length, window_prev, mode, from_pos=0, to_pos=0):
+    def __init__(self, data_dir, training_length, window_prev, mode, from_pos=0, to_pos=0, verbose=False):
         self.window_prev = window_prev
         self.data_dir = data_dir
         self.split_ratio = training_length
         self.mode = mode
         self._from_pos = from_pos
         self._to_pos = to_pos        
+        self._verbose = verbose
         train_X, test_X, train_y, test_y = self.preproc_entire()
         self.train_X = train_X
         self.test_X = test_X
         self.train_Y = train_y
         self.test_Y = test_y
+
+    @property
+    def verbose(self):
+        return self._verbose
+
+    @verbose.setter
+    def verbose(self, val):
+        self._verbose = val
 
     @property
     def from_pos(self) -> int:
@@ -83,10 +92,12 @@ class DataLoader:
         #rawdata = pd.DataFrame(rawdata, columns=['round', '1', '2', '3', '4', '5', '6'])
         
         raw_np = rawdata.to_numpy()
-        print(f'DataLoader.preproc_csv origin = {len(raw_np)}, {raw_np}')
+        if self._verbose:
+            print(f'DataLoader.preproc_csv origin = {len(raw_np)}, {raw_np}')
         raw_np = raw_np[self._from_pos:,1:]
         raw_np_proc = raw_np[:,1:]
-        print(f'rDataLoader.preproc_csv aw_np_proc = {len(raw_np_proc)}, {raw_np_proc}')
+        if self._verbose:
+            print(f'rDataLoader.preproc_csv aw_np_proc = {len(raw_np_proc)}, {raw_np_proc}')
         
         # to construct one-hot encoded input dataset
         inputnp = np.zeros((len(raw_np), ENTIRE_NUMBER))
