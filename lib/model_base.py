@@ -10,7 +10,7 @@ from tensorflow.keras.layers import Dense, Input
 from tensorflow.keras.layers import LSTM, Dropout
 from tensorflow.keras.optimizers import Adam
 import tensorflow as tf
-from globalvar import ENTIRE_NUMBER, TOT_NUMBER_OF_GTH
+from lib.globalvar import ENTIRE_NUMBER, TOT_NUMBER_OF_GTH
 
 
 def greed_method(cls_object, *args):
@@ -21,6 +21,7 @@ def greed_method(cls_object, *args):
         yhat_assigned = np.argsort(-yhat[:])
         prediction_number_set.append(yhat_assigned[0][:6] + 1)
     return prediction_number_set
+
 
 def sampling_method(cls_object, *args):
     """ sampling_method """
@@ -43,6 +44,7 @@ def sampling_method(cls_object, *args):
 
 predict_funcs={"greed": greed_method,
                "sampling": sampling_method}
+
 
 class BaseLSTM:
     """ BaseLSTM"""
@@ -218,3 +220,4 @@ class BaseLSTM:
         else:
             model.compile(optimizer=optimizer, loss=loss, metrics=metrics)
         return model
+

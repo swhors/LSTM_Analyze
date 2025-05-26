@@ -4,8 +4,8 @@ metrics_loader.py
 sqlite3 db에서 매트릭 데이터를 로드하는 함수
 
 """
-from db_operate import conn_db, close_db
-from db_operate import select_metric, delete_all_metric, insert_metric
+from lib.db_operate import conn_db, close_db
+from lib.db_operate import select_metric, delete_all_metric, insert_metric
 
 
 def row_2_metrics(datas):
@@ -45,7 +45,7 @@ def row_by_model_id(datas):
 
 def load_data_by_version(version: int, verbose=False):
     """ load_data_by_version """
-    conn = conn_db('metrics.db')
+    conn = conn_db('./db/metrics.db')
     need_db_init = False
     datas = select_metric(conn=conn, version=version, limit=0)
     model_datas = row_by_model_id(datas)
@@ -75,7 +75,7 @@ def load_data_by_version(version: int, verbose=False):
 
 def load_data_all(verbose=False):
     """ load_data_all """
-    conn = conn_db('metrics.db')
+    conn = conn_db('./db/metrics.db')
     datas = select_metric(conn=conn, version=version, limit=0)
     ids, versions, rounds, trials, dates, model_ids, metrics, checked, checked_size = row_2_metrics(datas)
     if verbose:
@@ -83,3 +83,4 @@ def load_data_all(verbose=False):
         print(cnt, metrics[cnt], checked_size[cnt])
     close_db(conn)
     return ids, versions, rounds, trials, dates, model_ids, metrics, checked, checked_size
+

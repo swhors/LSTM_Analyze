@@ -11,8 +11,8 @@ from tensorflow.keras.layers import Dense
 from tensorflow.keras.layers import LSTM, InputLayer, Input
 from tensorflow.keras.optimizers import Adam
 from scikeras.wrappers import KerasRegressor
-from globalvar import ENTIRE_NUMBER, TOT_NUMBER_OF_GTH
-from model_base import BaseLSTM
+from lib.globalvar import ENTIRE_NUMBER, TOT_NUMBER_OF_GTH
+from lib.model_base import BaseLSTM
 
 SEQUENCE_LENGTH = 10  # 이전 몇 회차의 데이터를 보고 다음 회차를 예측할지 결정
 

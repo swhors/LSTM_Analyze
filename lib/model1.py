@@ -8,8 +8,8 @@ from matplotlib import pyplot
 from tensorflow.keras.models import Sequential
 from tensorflow.keras.layers import Dense
 from tensorflow.keras.layers import LSTM
-from globalvar import ENTIRE_NUMBER, TOT_NUMBER_OF_GTH
-from model_base import BaseLSTM
+from lib.globalvar import ENTIRE_NUMBER, TOT_NUMBER_OF_GTH
+from lib.model_base import BaseLSTM
 
 
 class PredictLSTM1(BaseLSTM):

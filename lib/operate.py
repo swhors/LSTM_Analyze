@@ -11,24 +11,24 @@ from sklearn.pipeline import Pipeline
 
 from tensorflow.keras.layers import LSTM
 
-from globalvar import *
-from data_loader import DataLoader
-from model1 import PredictLSTM1
-from model2 import PredictLSTM2
-from model3 import PredictLSTM3
-from model4 import PredictLSTM4
+from lib.globalvar import *
+from lib.data_loader import DataLoader
+from lib.model1 import PredictLSTM1
+from lib.model2 import PredictLSTM2
+from lib.model3 import PredictLSTM3
+from lib.model4 import PredictLSTM4
 
-from util_pred import print_data
-from util_pred import flat_data_with_sum, flat_data, get_frequency
-from util_pred import save_model, import_mode
-from util_pred import get_random_in_list
-from util_pred import print_data_with_sort
-from util_pred import get_sorted_n_values
-from util_pred import dict_key_count
-from util_pred import print_list
-from util_pred import print_dict_list
-from util_pred import print_title
-from activation import ActivationOutput, RecurrentActivation
+from lib.util_pred import print_data
+from lib.util_pred import flat_data_with_sum, flat_data, get_frequency
+from lib.util_pred import save_model, import_mode
+from lib.util_pred import get_random_in_list
+from lib.util_pred import print_data_with_sort
+from lib.util_pred import get_sorted_n_values
+from lib.util_pred import dict_key_count
+from lib.util_pred import print_list
+from lib.util_pred import print_dict_list
+from lib.util_pred import print_title
+from lib.activation import ActivationOutput, RecurrentActivation
 from datetime import datetime
 
 

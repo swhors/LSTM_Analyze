@@ -4,7 +4,7 @@ import numpy as np
 from sklearn import preprocessing
 from sklearn.metrics import mean_squared_error
 from matplotlib import pyplot
-from globalvar import ENTIRE_NUMBER, TOT_NUMBER_OF_GTH 
+from lib.globalvar import ENTIRE_NUMBER, TOT_NUMBER_OF_GTH 
 
 
 class DataLoader:

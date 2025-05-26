@@ -8,10 +8,10 @@ from tensorflow.keras.models import Sequential
 from tensorflow.keras.layers import Dense
 from tensorflow.keras.layers import LSTM
 
-from globalvar import *
-from data import DataLoader
-from model import PredictLSTM
-from model2 import PredictLSTM2
+from lib.globalvar import *
+from lib.data import DataLoader
+from lib.model import PredictLSTM
+from lib.model2 import PredictLSTM2
 
 import argparse
 import matplotlib.pyplot as plt

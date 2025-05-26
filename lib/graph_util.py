@@ -10,7 +10,7 @@ import itertools
 import matplotlib.pyplot as plt
 from PIL import Image
 from IPython.display import display
-from metrics_loader import load_data_by_version
+from lib.metrics_loader import load_data_by_version
 
 
 def draw_data_graph(title, x_data, y_data, x_label, y_label, file_name="", verb=False):
