@@ -97,12 +97,16 @@ def create_model_v1(id, dataset, epoch=50, verbose=True):
     return (model, layers[id])
 
 
-def get_predicted(title, model, mode, use_pre, trial, last, verbose=True):
-    """ get_predicted """
+def get_predicted(title, model, mode, use_pre, gen_num, last, verbose=True):
+    """
+    get_predicted
+
+    param: gen_num -> 한 번에 몇 개의 데이터를 생성할 지에 대한 변수. 예) 5: 5개의 번호 열
+    """
     if verbose:
         print_title(title=title)
         print(f'start predicting. {datetime.now()}')
-    predictions = model.predict_numbers(mode2=mode, trial=trial, use_pre=use_pre)
+    predictions = model.predict_numbers(mode2=mode, trial=gen_num, use_pre=use_pre)
     selected_five = get_random_in_list(predictions, 5)
     if verbose:
         print_data(title='wanted_data',
