@@ -14,9 +14,10 @@ from lib.model_base import BaseLSTM
 
 class PredictLSTM1(BaseLSTM):
     """ PredictLSTM """
-    def __init__(self, data_loader, verb, hid_dim, args):
+    def __init__(self, model_id, data_loader, verb, hid_dim, args):
         """ __init__ """
-        super().__init__(version=1,
+        super().__init__(model_id,
+                         version=1,
                          data_loader=data_loader,
                          verb=verb,
                          hid_dim=hid_dim,

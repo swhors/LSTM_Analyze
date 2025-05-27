@@ -16,8 +16,9 @@ from lib.globalvar import ENTIRE_NUMBER, TOT_NUMBER_OF_GTH
 def greed_method(cls_object, *args):
     """ greed_method """
     prediction_number_set = []
+    verbose = 1 if cls_object.verb == "verbose" else 0
     for t in range(1, cls_object._trial + 1):
-        yhat = cls_object.model.predict(cls_object.test_X) # [1x45] dim
+        yhat = cls_object.model.predict(cls_object.test_X, verbose=verbose) # [1x45] dim
         yhat_assigned = np.argsort(-yhat[:])
         prediction_number_set.append(yhat_assigned[0][:6] + 1)
     return prediction_number_set
@@ -30,7 +31,8 @@ def sampling_method(cls_object, *args):
         use_pre = True
     else:
         use_pre = args[0]
-    yhat = cls_object.model.predict(cls_object.test_X) # [1x45] dim
+    verbose = 1 if cls_object.verb == "verbose" else 0
+    yhat = cls_object.model.predict(cls_object.test_X, verbose=verbose) # [1x45] dim
     probability = cls_object.get_probability(list(yhat[0])) # use the output as prob. desity dist.
     for t in range(1, cls_object._trial+1):
         selected = np.random.choice(ENTIRE_NUMBER, size=6, replace=False, p=probability)
@@ -48,8 +50,9 @@ predict_funcs={"greed": greed_method,
 
 class BaseLSTM:
     """ BaseLSTM"""
-    def __init__(self, version, data_loader, verb, hid_dim, args):
+    def __init__(self, model_id, version, data_loader, verb, hid_dim, args):
         """ __init__ """
+        self._model_id = model_id
         self._version = version
         self.train_X = data_loader.train_X
         self.test_X = data_loader.test_X
@@ -62,6 +65,14 @@ class BaseLSTM:
         self._epoch = 0
         self._batch = 0
         self._trial = 0
+
+    @property
+    def model_id(self) -> int:
+        return self._model_id
+
+    @model_id.setter
+    def model_id(self, value: int):
+        self._model_id = value
 
     @property
     def verb(self) -> str:
@@ -91,12 +102,6 @@ class BaseLSTM:
         print(f'verbose={verbose}')
         print(f'model={self.model}')
         print(f'num_epoch={num_epoch}/{type(num_epoch)}')
-        # history = self.model.fit(self.train_X,
-        #                          self.train_Y,
-        #                          epochs = num_epoch,
-        #                          batch_size = num_batch,
-        #                          verbose=verbose,
-        #                          shuffle=is_shuffle)
         return self.model.fit(
             self.train_X,
             self.train_Y,

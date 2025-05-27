@@ -17,9 +17,10 @@ SEQUENCE_LENGTH = 10  # 이전 몇 회차의 데이터를 보고 다음 회차�
 
 class PredictLSTM4(BaseLSTM):
     """ PredictLSTM2 """
-    def __init__(self, data_loader, verb, hid_dim, args):
+    def __init__(self, model_id, data_loader, verb, hid_dim, args):
         """ __init__ """
-        super().__init__(version=2,
+        super().__init__(model_id,
+                         version=2,
                          data_loader=data_loader,
                          verb=verb,
                          hid_dim=hid_dim,

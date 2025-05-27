@@ -43,7 +43,11 @@ def create_model(id, model_type, model_info, dataset, hid_dim, verbose=True, epo
     title = f"model{id+1}"
     if verbose:
         print(f'create_model.{title} start to create model. {datetime.now()}')
-    model = model_class(dataset, hid_dim = hid_dim, verb = verb, args=[model_info])
+    model = model_class(model_id=id,
+                        data_loader=dataset,
+                        hid_dim=hid_dim,
+                        verb=verb,
+                        args=[model_info])
     if verbose:
         print(f'create_model.{title} comleted to generate model. {datetime.now()}')
     start_time = datetime.now()
@@ -67,7 +71,11 @@ def create_model_v2(id, model_type, lstm_info, dataset, hid_dim=45, verbose=True
     title = f"model{id+1}"
     if verbose:
         print(f'create_model_v2.{title} start to create model. {datetime.now()}')
-    model = model_class(dataset, hid_dim = hid_dim, verb = verb, args=[lstm_info["model"]])
+    model = model_class(model_id=id,
+                        data_loader=dataset,
+                        hid_dim = hid_dim,
+                        verb = verb,
+                        args=[lstm_info["model"]])
     if verbose:
         print(f'create_model_v2.{title} comleted to generate model. {datetime.now()}')
         print(f'create_model_v2.{title} start to train model. {datetime.now()}')

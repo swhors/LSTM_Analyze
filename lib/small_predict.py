@@ -14,31 +14,31 @@ def predict_in_round(round, gen_num, last, models, max_model_cnt, mode2, verbose
     """ predict_small """
     # all (SMALL): predict #2
     
-    matched_cnts_small = [0 for i in range(max_model_cnt)]
-    selected_fives_small = [None for i in range(max_model_cnt)]
-    matched_list_small = [None for i in range(max_model_cnt)]
-    predicted_all_small = [None for i in range(max_model_cnt)]
+    matched_cnts_small = [0 for i in range(len(models))]
+    selected_fives_small = [None for i in range(len(models))]
+    matched_list_small = [None for i in range(len(models))]
+    predicted_all_small = [None for i in range(len(models))]
 
-    for i in range(max_model_cnt):
-        title = f"history #{i+1}"
+    i = 0
+    for model in models:
+        title = f"history #{model[0].model_id}"
         model_num = i
-        if models[model_num] is None:
-            print(f"model #{model_num+1} is None")
-        else:
-            models[model_num][0].verb = "None"
-            matched_cnts_small[model_num], \
-            selected_fives_small[model_num], \
-            matched_list_small[model_num], \
-            predicted_all_small[model_num] = get_predicted(
-                title=title,
-                model=models[model_num][0],
-                mode=mode2,
-                use_pre=False,
-                last=last,
-                verbose=verbose,
-                gen_num=gen_num
+        model[0].verb = "None"
+        matched_cnts_small[model_num], \
+        selected_fives_small[model_num], \
+        matched_list_small[model_num], \
+        predicted_all_small[model_num] = get_predicted(
+            title=title,
+            model=model[0],
+            mode=mode2,
+            use_pre=False,
+            last=last,
+            verbose=verbose,
+            gen_num=gen_num
             )
-    print(f'predicted time : round={round} date={datetime.now()}')
+        i += 1
+    if verbose:
+        print(f'predicted time : round={round} date={datetime.now()}')
     return matched_cnts_small, matched_list_small
 
 
@@ -63,8 +63,6 @@ def predict_small(test_id,
         init_metric(conn, drop_table=need_db_init)
         if verbose:
             print(f'success to connect db [{conn}]')
-    print(f'db connection handle=[{conn}]')
-
     for round in range(round_limit+1):
         matched_cnts_all = []
         matched_list = []
