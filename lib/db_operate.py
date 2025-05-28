@@ -206,13 +206,14 @@ def insert_model(conn, test_id, version, model_id, date, model, verbose=False):
                    )
 
 
-def insert_metric(conn, test_id, version, round, date, model_datas, verbose=False):
+def insert_metric(conn, test_id, version, round, date, model_ids, model_datas, verbose=False):
     """ insert_metric """
     table = "metrics"
     for model_data in model_datas:
-        model_id = 1
+        model_id_cnt = 0
         for metrics in model_data:
             trial = 1
+            model_id = model_ids[model_id_cnt]
             for metric, checked in metrics:
                 checked_len = len(checked)
                 col_dicts = {"test_id": test_id,
@@ -234,5 +235,5 @@ def insert_metric(conn, test_id, version, round, date, model_datas, verbose=Fals
                                auto_commit=False,
                                verbose=verbose)
                 trial += 1
-            model_id += 1
+            model_id_cnt += 1
     conn.commit()

@@ -91,7 +91,8 @@ class BaseLSTM:
         from datetime import datetime
         file_path = f'./lstm{self._version}_{self._hid_dim}_{self._epoch}_{self._batch}_{datetime.now()}.h5'
         self.model.save(file_path)
-        print(f'BaseLSTM.save_model')
+        if self._verb == "verbose":
+            print(f'BaseLSTM.save_model')
 
     def training(self, num_epoch, num_batch, is_shuffle=True, steps_per_epoch=1):
         """ training """
@@ -99,9 +100,10 @@ class BaseLSTM:
         self._epoch = num_epoch
         self._batch = num_batch
         verbose=2 if self._verb == "verbose" else 0
-        print(f'verbose={verbose}')
-        print(f'model={self.model}')
-        print(f'num_epoch={num_epoch}/{type(num_epoch)}')
+        if self._verb == "verbose":
+            print(f'verbose={verbose}')
+            print(f'model={self.model}')
+            print(f'num_epoch={num_epoch}/{type(num_epoch)}')
         return self.model.fit(
             self.train_X,
             self.train_Y,
@@ -207,7 +209,8 @@ class BaseLSTM:
         return_sequences = True
         for i, units in enumerate(lstm_units, start=1):
             # LSTM -> ... -> LSTM -> Dense(steps)
-            print(f'lstm unit : {i}, {units}')
+            if self._verb == "verbose":
+                print(f'lstm unit : {i}, {units}')
             if i == len(lstm_units):
                 return_sequences = last_lstm_return_sequences
             if lstm_model=="LSTM":
@@ -246,10 +249,10 @@ class BaseLSTM:
             model.add(Dense(units=steps, activation=output_dense_activation))
         # Compile the model
         optimizer = Adam(learning_rate=learning_rate)
-        print(f'loss = {loss}')
+        if self._verb == "verbose":
+            print(f'loss = {loss}')
         if len(metrics) == 0:
             model.compile(optimizer=optimizer, loss=loss)
         else:
             model.compile(optimizer=optimizer, loss=loss, metrics=metrics)
         return model
-

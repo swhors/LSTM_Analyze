@@ -60,23 +60,23 @@ def create_model(id, model_type, model_info, dataset, hid_dim, verbose=True, epo
     return model
 
 
-def create_model_v2(id, model_type, lstm_info, dataset, hid_dim=45, verbose=True):
+def create_model_v2(id, model_type, lstm_info, dataset, hid_dim=45, verbose=0):
     """ create_model """
     model_classes = {'lstm1': PredictLSTM1,
                  'lstm2': PredictLSTM2,
                  'lstm3': PredictLSTM3,
                  'lstm4': PredictLSTM4}
     model_class = model_classes[model_type]
-    verb = "verbose" if verbose else "None"
+    verb = "verbose" if verbose > 0 else "None"
     title = f"model{id+1}"
-    if verbose:
+    if verbose>0:
         print(f'create_model_v2.{title} start to create model. {datetime.now()}')
     model = model_class(model_id=id,
                         data_loader=dataset,
                         hid_dim = hid_dim,
                         verb = verb,
                         args=[lstm_info["model"]])
-    if verbose:
+    if verbose>0:
         print(f'create_model_v2.{title} comleted to generate model. {datetime.now()}')
         print(f'create_model_v2.{title} start to train model. {datetime.now()}')
         print(f'create_model_v2.{title}   epochs = {lstm_info["train"]["epochs"]} {datetime.now()}')
@@ -87,9 +87,9 @@ def create_model_v2(id, model_type, lstm_info, dataset, hid_dim=45, verbose=True
                          )
     end_time = datetime.now()
     elapsed = end_time - start_time
-    if verbose:
-        print(f'create_model.{title} elapsed = {elapsed}')
-        print(f'create_model.{title} comleted to train model. {datetime.now()}')
+    if verbose > 0:
+        print(f'create_model_v2.{title} elapsed = {elapsed}')
+        print(f'create_model_v2.{title} comleted to train model. {datetime.now()}')
     return model
 
 
@@ -105,25 +105,26 @@ def create_model_v1(id, dataset, epoch=50, verbose=True):
     return (model, layers[id])
 
 
-def get_predicted(title, model, mode, use_pre, gen_num, last, verbose=True):
+def get_predicted(title, model, mode, use_pre, gen_num, last, verbose=0):
     """
     get_predicted
 
     param: gen_num -> 한 번에 몇 개의 데이터를 생성할 지에 대한 변수. 예) 5: 5개의 번호 열
     """
-    if verbose:
+    if verbose > 0:
         print_title(title=title)
         print(f'start predicting. {datetime.now()}')
     predictions = model.predict_numbers(mode2=mode, trial=gen_num, use_pre=use_pre)
     selected_five = get_random_in_list(predictions, 5)
-    if verbose:
+    if verbose > 1:
         print_data(title='wanted_data',
                    data_set=last)
         print('-----')
         print_list(title="selected_five", datas=selected_five)
     cnt, checked = dict_key_count(target=last[0], datas=predictions)
-    if verbose:
+    if verbose > 1:
         print(f'checked cnt = {cnt}')
         print_list(title="checked", datas=checked)
+    if verbose > 0:
         print(f'end predicting. {datetime.now()}')
     return cnt, selected_five, checked, predictions
