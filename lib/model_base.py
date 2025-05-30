@@ -7,7 +7,7 @@ from sklearn.metrics import mean_squared_error
 from matplotlib import pyplot
 from tensorflow.keras.models import Sequential
 from tensorflow.keras.layers import Dense, Input
-from tensorflow.keras.layers import LSTM, Dropout, Bidirectional
+from tensorflow.keras.layers import LSTM, Dropout, Bidirectional, Flatten
 from tensorflow.keras.optimizers import Adam
 import tensorflow as tf
 from lib.globalvar import ENTIRE_NUMBER, TOT_NUMBER_OF_GTH
@@ -204,6 +204,11 @@ class BaseLSTM:
         #     cur_lstm_class = lstm_class[lstm_model]
         if rand_seed > 0:
             tf.random.set_seed(rand_seed)
+        # from keras import backend as k
+        # session_conf = tf.ConfigProto(intra_op_parallelism_threads=1,
+        #                               inter_op_parallelism_threads=1)
+        # sess = tf.Session(graph=tf.get_default_graph(), config=session_conf)
+        # k.set_session(sess)
         model = Sequential()
         model.add(Input(shape=(seq_len, n_features)))
         return_sequences = True

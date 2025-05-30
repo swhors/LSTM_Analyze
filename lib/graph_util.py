@@ -13,7 +13,7 @@ from IPython.display import display
 from lib.metrics_loader import load_data_by_version
 
 
-def draw_data_graph(title, x_data, y_data, x_label, y_label, file_name="", verb=False):
+def draw_data_graph(title, x_data, y_data, x_label, y_label, width=0, height=0, file_name="", verb=False):
     """ draw_data_graph """
     plt.bar(x_data, y_data)
     plt.xlabel(x_label)
@@ -22,6 +22,8 @@ def draw_data_graph(title, x_data, y_data, x_label, y_label, file_name="", verb=
     if len(file_name) > 0:
         plt.legend(loc=0)
         plt.savefig(file_name)
+    if width > 0 and height > 0:
+        plt.figure(figsize=(width,height))
     plt.show()
 
 

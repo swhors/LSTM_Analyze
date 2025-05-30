@@ -3,6 +3,8 @@ small_predict.py
 """
 import pickle
 import time
+import resource
+import os
 from lib.util_pred import print_list
 from lib.util_pred import print_dict_list
 from lib.util_pred import print_title
@@ -57,7 +59,9 @@ def predict_small(test_id,
                   db_file_name,
                   max_model_cnt,
                   mode2,
-                  verbose=0):
+                  verbose=0,
+                  delete_resource=False
+                 ):
     """ predict_metric """
     need_db_init = False
     conn = None
@@ -96,6 +100,15 @@ def predict_small(test_id,
                           date=date,
                           model_datas=[matched_list_small],
                           verbose=verb_str)
+            
+    if delete_resource:
+        for m in matched_cnts_all:
+            del(m)
+        del(matched_cnts_all)
+        for m in matched_list:
+            del(m)
+        del(matched_list)
+
     if write_to_db:
         close_db(conn=conn)
 
@@ -148,7 +161,7 @@ def gen_multi_model(test_id, lstm_args, version, verbose=0):
     return models
 
 
-def build_and_predict(args: dict, lstm_args, sleep_time=0, verbose=0):
+def build_and_predict(args: dict, lstm_args, sleep_time=0, verbose=0, delete_resource=False):
     """ build_and_predict """
     if 'test_id' not in args:
         return
@@ -195,3 +208,28 @@ def build_and_predict(args: dict, lstm_args, sleep_time=0, verbose=0):
                   verbose=verbose
                   )
     save_model(test_id=test_id, version=version, models=models, verbose=verb)
+    if delete_resource:
+        for model in models:
+            del(model)
+        del(models)
+
+
+def generate_metric(args, from_version, to_version, lstm_args):
+    """ generate_metric """
+    usage = resource.getrusage(resource.RUSAGE_SELF)
+    print(f"Test Start: {from_version}~{to_version}")
+    print(f"CPU 시간: {usage.ru_utime} 초")
+    print(f"메모리 사용량: {usage.ru_maxrss} KB")
+    for version in range(from_version, to_version+1):
+        args["version"] = version
+        print(f'generate_metric.02 args[\"version\"]={args["version"]}')
+        build_and_predict(args=args, lstm_args=lstm_args, sleep_time=3, verbose=False, delete_resource=True)
+        time.sleep(10)
+        usage = resource.getrusage(resource.RUSAGE_SELF)
+        print(f"CPU 시간: {usage.ru_utime} 초")
+        print(f"메모리 사용량: {usage.ru_maxrss} KB")
+        clear_output_this_02 = False
+        if clear_output_this_02:
+            from IPython.display import clear_output
+            clear_output() # Clears the output
+    import gc; gc.collect()

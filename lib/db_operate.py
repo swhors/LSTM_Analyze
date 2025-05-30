@@ -123,7 +123,14 @@ def select_operate(conn, table_name, columns, where, order, limit, verbose=False
 
 
 @check_conn
-def select_metric(conn, test_id="", version=-1, model_id=-1, limit=0, verbose=False):
+def select_metric(conn,
+                  test_id="",
+                  version=-1,
+                  model_id=-1,
+                  limit=0,
+                  matched_size=-1,
+                  matched_size_cond=">",
+                  verbose=False):
     """ select_metric """
     # Retrieve data from the table
     where = []
@@ -133,6 +140,8 @@ def select_metric(conn, test_id="", version=-1, model_id=-1, limit=0, verbose=Fa
         where.append(f"version={version}")
     if model_id > 0:
         where.append(f"model_id={model_id}")
+    if matched_size > 0:
+        where.append(f"model_id{matched_size_cond}{matched_size}")
     return select_operate(conn=conn,
                           table_name="metrics",
                           columns=[],
