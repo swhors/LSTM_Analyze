@@ -1,0 +1,5 @@
+numpy
+pandas
+keras
+tensorflow-cpu
+scikit-learn
