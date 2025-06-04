@@ -13,7 +13,7 @@ def load_data_by_version(test_id, model_ids):
     cnt = 1
     for id in model_ids:
         metric_dict = {'id': id, 'metric': {}}
-        print(f'read_db.0_{cnt} (model_id={id})')
+        print(f'read_db.0_{cnt} (model_id={id}, test_id={test_id})')
         cnt += 1
         metrics = select_metric(conn=conn,
                                 test_id=test_id,
@@ -111,7 +111,7 @@ def load_data_matched_freq_v2(test_ids: list, model_ids: list):
         for id in model_ids:
             metric_dict = {'id': id, 'metric': {}}
             for test_id in test_ids:            
-                print(f'read_db.0_{cnt} (model_id={id})')
+                print(f'load_data_matched_freq_v2.read_db.01_{cnt:02} (model_id={id}, test_id={test_id})')
                 cnt += 1
                 metrics = select_metric(conn=conn,
                                         test_id=test_id,
@@ -119,6 +119,7 @@ def load_data_matched_freq_v2(test_ids: list, model_ids: list):
                                         matched_size=3,
                                         matched_size_cond=">=",
                                         verbose=False)
+                metric_dict_list = {}
                 for metric in metrics:
                     test_id = metric[1]
                     version = metric[2]
@@ -132,8 +133,11 @@ def load_data_matched_freq_v2(test_ids: list, model_ids: list):
                         else:
                             if test_id not in metric_dict['metric'][key]:
                                 metric_dict['metric'][key].append(test_id)
+                # sorted_lists = sorted(metric_dict_list.items())
+                # print(f'sorted_lists = {sorted_lists}')
+                # metric_dict['metric'] = sorted_lists
             metrics_col.append(metric_dict)
-        print(f'read_db.10 complete (model_id={id})')
+        print(f'load_data_matched_freq_v2.read_db.10 complete (model_id={id})')
         return metrics_col
 
 

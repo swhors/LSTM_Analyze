@@ -67,7 +67,7 @@ dense_units = [[(45, ActivationOutput.selu.name),   # 0
                ],
                []                                   # 4
               ]
-sel_date = datetime(2025, 5, 24, 20, 35)
+sel_date = datetime(2025, 5, 31, 20, 35)
 sel_date_ts = (sel_date.timestamp() / 10000000)
 steps = [45, 45,]
 metrics = [["accuracy"], []]
