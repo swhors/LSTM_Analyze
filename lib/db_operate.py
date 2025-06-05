@@ -1,5 +1,8 @@
 """
 db_operate.py
+
+db에서 데이터를 조회하는 기능을 정의합니다.
+swhors@naver.com
 """
 import sqlite3
 from contextlib import closing
@@ -122,16 +125,16 @@ def select_operate(conn, table_name, columns, where, order, limit, verbose=False
         return datas
 
 
-@check_conn
-def select_metric(conn,
-                  test_id="",
-                  version=-1,
-                  model_id=-1,
-                  limit=0,
-                  matched_size=-1,
-                  matched_size_cond=">",
-                  verbose=False):
-    """ select_metric """
+def select_metric_by_cols(conn,
+                          columns=[],
+                          test_id="",
+                          version=-1,
+                          model_id=-1,
+                          limit=0,
+                          matched_size=-1,
+                          matched_size_cond=">",
+                          verbose=False):
+    """ select_metric_by_cols """
     # Retrieve data from the table
     where = []
     if len(test_id) > 0:
@@ -144,12 +147,74 @@ def select_metric(conn,
         where.append(f"model_id{matched_size_cond}{matched_size}")
     return select_operate(conn=conn,
                           table_name="metrics",
-                          columns=[],
+                          columns=columns,
                           where=where,
                           order=[],
                           limit=limit,
                           verbose=verbose
                          )
+
+
+@check_conn
+def select_metric_all_matched(conn,
+                              test_id,
+                              version=-1,
+                              limit=0,
+                              model_id=-1,
+                              matched_size=-1,
+                              matched_size_cond=">",
+                              verbose=False):
+    """ select_metric """
+    return select_metric_by_cols(conn=conn,
+                                 columns=['matched'],
+                                 test_id=test_id,
+                                 version=version,
+                                 model_id=model_id,
+                                 limit=0,
+                                 matched_size=matched_size,
+                                 matched_size_cond=matched_size_cond,
+                                 verbose=verbose)
+
+
+@check_conn
+def select_metric_all_matched_size(conn,
+                                   test_id,
+                                   version=-1,
+                                   limit=0,
+                                   model_id=-1,
+                                   matched_size=-1,
+                                   matched_size_cond=">",
+                                   verbose=False):
+    """ select_metric """
+    return select_metric_by_cols(conn=conn,
+                                 columns=['matched_size'],
+                                 test_id=test_id,
+                                 version=version,
+                                 model_id=model_id,
+                                 limit=0,
+                                 matched_size=matched_size,
+                                 matched_size_cond=matched_size_cond,
+                                 verbose=verbose)
+
+
+@check_conn
+def select_metric(conn,
+                  test_id="",
+                  version=-1,
+                  model_id=-1,
+                  limit=0,
+                  matched_size=-1,
+                  matched_size_cond=">",
+                  verbose=False):
+    """ select_metric """
+    return select_metric_by_cols(conn=conn,
+                                 test_id=test_id,
+                                 version=version,
+                                 model_id=model_id,
+                                 limit=0,
+                                 matched_size=matched_size,
+                                 matched_size_cond=matched_size_cond,
+                                 verbose=verbose)
 
 
 @check_conn
@@ -165,7 +230,7 @@ def select_model(conn, test_id="", version=-1, model_id=-1, limit=0, verbose=Fal
         where.append(f"model_id={model_id}")
     return select_operate(conn=conn,
                           table_name="models",
-                          columns=[model],
+                          columns=[],
                           where=where,
                           order=[],
                           limit=limit,

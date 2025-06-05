@@ -13,9 +13,47 @@ from IPython.display import display
 from lib.metrics_loader import load_data_by_version
 
 
-def draw_data_graph(title, x_data, y_data, x_label, y_label, width=0, height=0, file_name="", verb=False):
+def draw_data_graph(title,
+                    x_data,
+                    y_data,
+                    x_label,
+                    y_label,
+                    width=0,
+                    height=0,
+                    file_name="",
+                    is_bar=True,
+                    verb=False):
     """ draw_data_graph """
-    plt.bar(x_data, y_data)
+    if is_bar:
+        plt.bar(x_data, y_data)
+    else:
+        plt.plot(x_data, y_data)
+    plt.xlabel(x_label)
+    plt.ylabel(y_label)
+    plt.title(title)
+    if len(file_name) > 0:
+        plt.legend(loc=0)
+        plt.savefig(file_name)
+    if width > 0 and height > 0:
+        plt.figure(figsize=(width,height))
+    plt.show()
+
+
+def draw_datas_graph(title,
+                     x_y_datas,
+                     x_label,
+                     y_label,
+                     width=0,
+                     height=0,
+                     file_name="",
+                     is_bar=True,
+                     verb=False):
+    """ draw_data_graph """
+    for x_y_data in x_y_datas:
+        if is_bar:
+            plt.bar(x_y_data[0], x_y_data[1])
+        else:
+            plt.plot(x_y_data[0], x_y_data[1])
     plt.xlabel(x_label)
     plt.ylabel(y_label)
     plt.title(title)
@@ -41,7 +79,7 @@ def draw_data_graph_v2(title,
                        show_label=True,
                        title_as_filename=False,
                        verb=False):
-    """ draw_data_graph """
+    """ draw_data_graph_v2 """
     plt.xlabel(x_label)
     plt.ylabel(y_label)
     plt.title(title)
