@@ -61,7 +61,8 @@ class DataLoader:
                                                     dropnan=True,
                                                     fillnan = False)
         values = reframed.values
-        train_length = int(self.split_ratio * len(dataset))    
+        # train_length = int(self.split_ratio * len(dataset))
+        train_length = len(dataset)-self.window_prev-1
         train = values[:train_length, :]
         if self.mode == 'predict':
             test = values[:len(dataset)-self.window_prev-1, :]
