@@ -69,7 +69,9 @@ def init_results(conn, drop_table=True):
     table_name="results"
     columns = ["id INTEGER PRIMARY KEY AUTOINCREMENT",
                "round INTEGER",
-               "metric TEXT"]
+               "metric TEXT",
+               "bonus INTEGER",
+              ]
     init_table(conn=conn, table_name=table_name, columns=columns, drop_table=drop_table)
 
 
@@ -87,6 +89,21 @@ def init_metric(conn, drop_table=True):
                "metric TEXT",
                "matched TEXT",
                "matched_size INTEGER"]
+    init_table(conn=conn, table_name=table_name, columns=columns, drop_table=drop_table)
+
+
+@check_conn
+def init_rndforest(conn, drop_table=True):
+    """ init_models """
+    table_name = "rndforest"
+    columns = ["id INTEGER PRIMARY KEY AUTOINCREMENT",
+               "n_estimator INTEGER",
+               "data_length INTEGER",
+               "random_state INTEGER",
+               "rounds TEXT",
+               "matched_cnts TEXT",
+               "sum_val INTEGER",
+               "version TEXT"]
     init_table(conn=conn, table_name=table_name, columns=columns, drop_table=drop_table)
 
 
