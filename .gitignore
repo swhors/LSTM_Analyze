@@ -1,0 +1,12 @@
+*.swp
+.ipynb_checkpoints/
+__pycache__/
+csv/.ipynb_checkpoints/
+foresttrans/.ipynb_checkpoints/
+lib/.ipynb_checkpoints/
+lib/__pycache__/
+old_work/.ipynb_checkpoints/
+study/.ipynb_checkpoints/
+study/img/.ipynb_checkpoints/
+"study/\352\270\210\354\234\265 \353\266\204\354\204\235\354\235\204 \354\234\204\355\225\234 \355\214\214\354\235\264\354\215\254 \355\224\204\353\241\234\352\267\270\353\236\230\353\260\215/.ipynb_checkpoints/"
+"study/\354\206\214\354\205\234 \353\204\244\355\212\270\354\233\214\355\201\254 \353\266\204\354\204\235/.ipynb_checkpoints/"
