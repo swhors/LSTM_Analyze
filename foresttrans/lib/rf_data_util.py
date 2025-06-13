@@ -285,11 +285,11 @@ def main_process(version,
                         cnt += 1
                         if cnt % 1000 == 0:
                             print(f'proceed [now={datetime.now()}, n_estimator={n_estimator}, cnt={cnt}, '\
-                                  'last_round={last_round}, random_state={random_state}, data_length={data_length}]')
+                                  f'last_round={last_round}, random_state={random_state}, data_length={data_length}]')
     return predict_lens
 
 
-def print_predicts(predict_lens, sum_min=-1, sum_max=-1, version="T_00_00", write_to_file=False, verbose=0):
+def print_predicts(predict_lens, sum_min=-1, sum_max=-1, version="T_00_00", write_to_file=False, write_to_db=False, verbose=0):
     result_set = []
     for n_estimator in predict_lens:
         for data_length in predict_lens[n_estimator]:
