@@ -356,14 +356,11 @@ def print_predicts(predict_lens, sum_min=-1, sum_max=-1, version="T_00_00", writ
                     insert_randomforest_db('../db/metrics.db',
                                            version=version,
                                            db_datas=db_datas,
-                                           verbose=verbose)
-
-
-    
+                                           verbose=verbose)    
     return result_set
 
 
-def main(parameters, version, sum_min=-1, sum_max=-1, write_to_file=False, write_to_db=False, return_predict=False, trial=5, verbose=0):
+def main(parameters, version, sum_min=-1, sum_max=-1, write_to_file=False, write_to_db=False, trial=5, verbose=0):
     """ main """
     print(f'start   [now={datetime.now()}]')
     db_file_path = '../db/metrics.db' if 'db_file_path' not in parameters else parameters["db_file_path"]
@@ -376,7 +373,6 @@ def main(parameters, version, sum_min=-1, sum_max=-1, write_to_file=False, write
                                 random_state_begin=parameters["random_state_begin"],
                                 random_state_end=parameters["random_state_end"],
                                 trial=trial,
-                                return_predict
                                 db_file_path=db_file_path,
                                 write_db_file_path=write_db_file_path,
                                 verbose=verbose)
