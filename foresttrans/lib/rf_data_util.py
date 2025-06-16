@@ -272,8 +272,6 @@ def main_process(version,
                     if data_length not in predict_lens[n_estimator]:
                         predict_lens[n_estimator][data_length] = {}
                     for random_state in tqdm(range(random_state_begin, random_state_end, random_state_gap)):
-                        # print(f'n_estimator={n_estimator}, last_round={last_round}, '\
-                        #       f'data_length={data_length}, random_state={random_state}')
                         predict_len = predict_and_test(last_round,
                                                        first_bonus,
                                                        hist_data,
@@ -288,10 +286,50 @@ def main_process(version,
                         else:
                             predict_lens[n_estimator][data_length][random_state][0].append(last_round)
                             predict_lens[n_estimator][data_length][random_state][1].append(predict_len)
-                        # cnt += 1
-                        # if cnt % 1000 == 0:
-                        #     print(f'proceed [now={datetime.now()}, n_estimator={n_estimator}, cnt={cnt}, '\
-                        #           f'last_round={last_round}, random_state={random_state}, data_length={data_length}]')
+    return predict_lens
+
+
+### Prepare and train, predict
+def main_process_v2(version,
+                    n_estimators,
+                    last_rounds,
+                    data_lengths,
+                    random_state_gap=100,
+                    random_state_begin=0,
+                    random_state_end=300000,
+                    db_file_path='../db/metrics.db',
+                    write_to_db=False,
+                    write_db_file_path='../db/metrics.db',
+                    trial=5,
+                    verbose=0):
+    """ main_process """
+    predict_lens = {}
+    for n_estimator in n_estimators:
+        predict_lens[n_estimator] = {}
+        if n_estimator > 1:
+            for data_length in data_lengths:
+                if data_length not in predict_lens[n_estimator]:
+                    predict_lens[n_estimator][data_length] = {}
+                for random_state in tqdm(range(random_state_begin, random_state_end, random_state_gap)):
+                    if n_estimator not in predict_lens:
+                        predict_lens[n_estimator] = {}
+                    for last_round in last_rounds:
+                        print(f'random_state={random_state}, last_round={last_round}, data_length={data_length}')
+                        hist_data, first_bonus = load_data_by_db(db_file_path=db_file_path, last_round=last_round, length=data_length)
+                        for train_x in hist_data:
+                            train_x[1].insert(0, train_x[0])
+                            predict_len = predict_and_test(last_round,
+                                                           first_bonus,
+                                                           hist_data,
+                                                           n_estimator,
+                                                           random_state,
+                                                           trial,
+                                                           verbose=0)
+                            if random_state not in predict_lens[n_estimator][data_length]:
+                                predict_lens[n_estimator][data_length][random_state] = [[last_round], [predict_len]]
+                            else:
+                                predict_lens[n_estimator][data_length][random_state][0].append(last_round)
+                                predict_lens[n_estimator][data_length][random_state][1].append(predict_len)
     return predict_lens
 
 
@@ -381,27 +419,32 @@ def main(parameters, version, sum_min=-1, sum_max=-1, write_to_file=False, write
     db_file_path = '../db/metrics.db' if 'db_file_path' not in parameters else parameters["db_file_path"]
     write_db_file_path = '../db/metrics.db' if 'write_db_file_path' not in parameters else parameters["write_db_file_path"]
     print("main.db_file_path = ", db_file_path)
-    predict_lens = main_process(version=version,
-                                n_estimators=parameters["n_estimators"],
-                                last_rounds=parameters["last_rounds"],
-                                data_lengths=parameters["data_lengths"],
-                                random_state_gap=parameters["random_state_gap"],
-                                random_state_begin=parameters["random_state_begin"],
-                                random_state_end=parameters["random_state_end"],
-                                trial=trial,
-                                db_file_path=db_file_path,
-                                write_db_file_path=write_db_file_path,
-                                verbose=verbose)
-    print(f'completed [now={datetime.now()}]')
-    print(f'start to read and write data: [now={datetime.now()}]')
-    result_set = print_predicts(predict_lens=predict_lens,
-                                sum_min=sum_min,
-                                sum_max=sum_max,
-                                version=version,
-                                write_to_file=write_to_file,
-                                write_to_db=write_to_db,
-                                write_db_file_path=write_db_file_path)
-    print(f'complete to read and data: [now={datetime.now()}]')
+    random_state_gap=parameters["random_state_gap"]
+    random_state_begin=parameters["random_state_begin"]
+    random_state_end=parameters["random_state_end"]
+    
+    for randon_state in range(random_state_begin, random_state_end, random_state_gap):
+        predict_lens = main_process(version=version,
+                                    n_estimators=parameters["n_estimators"],
+                                    last_rounds=parameters["last_rounds"],
+                                    data_lengths=parameters["data_lengths"],
+                                    random_state_gap=1,
+                                    random_state_begin=randon_state,
+                                    random_state_end=randon_state+1,
+                                    trial=trial,
+                                    db_file_path=db_file_path,
+                                    write_db_file_path=write_db_file_path,
+                                    verbose=verbose)
+        print(f'completed [now={datetime.now()}]')
+        print(f'start to read and write data: [now={datetime.now()}]')
+        result_set = print_predicts(predict_lens=predict_lens,
+                                    sum_min=sum_min,
+                                    sum_max=sum_max,
+                                    version=version,
+                                    write_to_file=write_to_file,
+                                    write_to_db=write_to_db,
+                                    write_db_file_path=write_db_file_path)
+        print(f'complete to read and data: [now={datetime.now()}]')
     return result_set
 
 

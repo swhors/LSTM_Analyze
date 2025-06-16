@@ -55,19 +55,17 @@ def get_args():
 
 
 if __name__=="__main__":
-    print(os.environ['PYTHONPATH'])
-    print(os.getcwd())
-
-
     args = get_args()
-    print(f'n_estimators : {args.n_estimators}')
-    print(f'data_lengths : {args.data_lengths}')
-    print(f'random_state_gap : {args.random_state_gap}')
+    print(f'PYTHONPATH         : {os.environ["PYTHONPATH"]}')
+    print(f'Working Path       : {os.getcwd()}')
+    print(f'n_estimators       : {args.n_estimators}')
+    print(f'data_lengths       : {args.data_lengths}')
+    print(f'random_state_gap   : {args.random_state_gap}')
     print(f'random_state_begin : {args.random_state_begin}')
-    print(f'random_state_end : {args.random_state_end}')
-    print(f'last_rounds_begin : {args.last_rounds_begin}')
-    print(f'last_rounds_end : {args.last_rounds_end}')
-    print(f'db_path : {args.db_file_path}')
+    print(f'random_state_end   : {args.random_state_end}')
+    print(f'last_rounds_begin  : {args.last_rounds_begin}')
+    print(f'last_rounds_end    : {args.last_rounds_end}')
+    print(f'db_path            : {args.db_file_path}')
 
     run_this = False
 
