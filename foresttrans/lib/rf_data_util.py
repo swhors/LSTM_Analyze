@@ -12,6 +12,7 @@ import itertools
 import matplotlib.pyplot as plt
 from PIL import Image
 from IPython.display import display
+from tqdm import tqdm
 
 
 def load_data_by_db(db_file_path, last_round, length, reverse=False):
@@ -54,6 +55,9 @@ def create_randomforest_db(db_file_path, verbose=1):
 """
 def insert_randomforest_db(db_file_path, version, db_datas, auto_commit=True, verbose=0):
     """ insert_randomforest_db """
+    import os
+    print(os.getcwd())
+    print('db_file_path', db_file_path)
     if version == 0:
         version = str(datetime.now().timestamp())
     with closing(sqlite3.connect(db_file_path)) as conn:
@@ -86,7 +90,6 @@ def rf_predict(train_X, n_estimators=100, random_state=350, trial=5, verbose=0):
     df = df.sort_values(by='회차').reset_index(drop=True)
 
     if verbose > 0:
-        print("--- 로또 당첨 번호 이력 ---")
         print(df)
 
     # 기계 학습을 위한 데이터 준비
@@ -260,14 +263,17 @@ def main_process(version,
         predict_lens[n_estimator] = {}
         if n_estimator > 1:
             for last_round in last_rounds:
-                cnt = 0
                 for data_length in data_lengths:
+                    print(f'last_round={last_round}, data_length={data_length}')
+                    cnt = 0
                     hist_data, first_bonus = load_data_by_db(db_file_path=db_file_path, last_round=last_round, length=data_length)
                     for train_x in hist_data:
                         train_x[1].insert(0, train_x[0])
                     if data_length not in predict_lens[n_estimator]:
                         predict_lens[n_estimator][data_length] = {}
-                    for random_state in range(random_state_begin, random_state_end, random_state_gap):
+                    for random_state in tqdm(range(random_state_begin, random_state_end, random_state_gap)):
+                        # print(f'n_estimator={n_estimator}, last_round={last_round}, '\
+                        #       f'data_length={data_length}, random_state={random_state}')
                         predict_len = predict_and_test(last_round,
                                                        first_bonus,
                                                        hist_data,
@@ -282,14 +288,21 @@ def main_process(version,
                         else:
                             predict_lens[n_estimator][data_length][random_state][0].append(last_round)
                             predict_lens[n_estimator][data_length][random_state][1].append(predict_len)
-                        cnt += 1
-                        if cnt % 1000 == 0:
-                            print(f'proceed [now={datetime.now()}, n_estimator={n_estimator}, cnt={cnt}, '\
-                                  f'last_round={last_round}, random_state={random_state}, data_length={data_length}]')
+                        # cnt += 1
+                        # if cnt % 1000 == 0:
+                        #     print(f'proceed [now={datetime.now()}, n_estimator={n_estimator}, cnt={cnt}, '\
+                        #           f'last_round={last_round}, random_state={random_state}, data_length={data_length}]')
     return predict_lens
 
 
-def print_predicts(predict_lens, sum_min=-1, sum_max=-1, version="T_00_00", write_to_file=False, write_to_db=False, verbose=0):
+def print_predicts(predict_lens,
+                   sum_min=-1,
+                   sum_max=-1,
+                   version="T_00_00",
+                   write_to_file=False,
+                   write_to_db=False,
+                   write_db_file_path='../db/metrics.db',
+                   verbose=0):
     result_set = []
     for n_estimator in predict_lens:
         for data_length in predict_lens[n_estimator]:
@@ -353,7 +366,7 @@ def print_predicts(predict_lens, sum_min=-1, sum_max=-1, version="T_00_00", writ
                                 random_state,
                                 predict_lens[n_estimator][data_length][random_state],
                                 sum_val)
-                    insert_randomforest_db('../db/metrics.db',
+                    insert_randomforest_db(write_db_file_path,
                                            version=version,
                                            db_datas=db_datas,
                                            verbose=verbose)    
@@ -363,8 +376,11 @@ def print_predicts(predict_lens, sum_min=-1, sum_max=-1, version="T_00_00", writ
 def main(parameters, version, sum_min=-1, sum_max=-1, write_to_file=False, write_to_db=False, trial=5, verbose=0):
     """ main """
     print(f'start   [now={datetime.now()}]')
+    print(parameters["db_file_path"])
+    print(parameters.keys())
     db_file_path = '../db/metrics.db' if 'db_file_path' not in parameters else parameters["db_file_path"]
     write_db_file_path = '../db/metrics.db' if 'write_db_file_path' not in parameters else parameters["write_db_file_path"]
+    print("main.db_file_path = ", db_file_path)
     predict_lens = main_process(version=version,
                                 n_estimators=parameters["n_estimators"],
                                 last_rounds=parameters["last_rounds"],
@@ -383,7 +399,8 @@ def main(parameters, version, sum_min=-1, sum_max=-1, write_to_file=False, write
                                 sum_max=sum_max,
                                 version=version,
                                 write_to_file=write_to_file,
-                                write_to_db=write_to_db)
+                                write_to_db=write_to_db,
+                                write_db_file_path=write_db_file_path)
     print(f'complete to read and data: [now={datetime.now()}]')
     return result_set
 
