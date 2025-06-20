@@ -12,6 +12,9 @@
 # export START=113500 + 100
 # export START=113400 + 100
 # export START=113800 + 100
+# export START=113900 + 100
+# export START=113300 + 100
+export START=114000
 export GAP=100
 
 PYTHONPATH=$PWD python runner.py --n_estimators 100 --data_lengths 100 --random_state_gap 1 --random_state_begin $START --random_state_end $((START + GAP)) --last_rounds_begin 1176 --last_rounds_end 770 --db_file_path "/db/metrics.db" --version="T_01_11"
