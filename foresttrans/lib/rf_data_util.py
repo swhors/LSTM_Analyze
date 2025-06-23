@@ -111,15 +111,16 @@ def rf_predict(train_X, n_estimators=100, random_state=350, trial=5, verbose=0):
     # 랜덤 포레스트 회귀 모델을 사용합니다.
     # the random_state parameter is used to control the randomness of the algorithm, ensuring reproducibility of results. 
     # the n_estimators parameter specifies the number of decision trees in the forest. 
-    model = RandomForestRegressor(n_estimators=n_estimators, random_state=random_state) # n_estimators: 만들 트리의 개수
+    model = RandomForestRegressor(n_estimators=n_estimators,
+                                  random_state=random_state,
+                                  verbose=verbose) # n_estimators: 만들 트리의 개수
     model.fit(X, y)
 
     # 예측할 회차의 이전 회차 데이터 (1173회차)
     last_draw = df.iloc[-1][['번호1', '번호2', '번호3', '번호4', '번호5', '번호6']].values.reshape(1, -1)
 
     if verbose > 0:
-        print(f"\n--- {df.iloc[-1]['회차']}회차 데이터로 다음 회차 예측 ---")
-        print(last_draw)
+        print('last_draw', last_draw)
 
     # 다음 번호 예측
     predicted_numbers_set = []
@@ -259,19 +260,24 @@ def main_process(version,
                  verbose=0):
     """ main_process """
     predict_lens = {}
+    if (random_state_begin - random_state_end) > 10:
+        random_state_range = tqdm(range(random_state_begin, random_state_end, random_state_gap))
+    else:
+        random_state_range = range(random_state_begin, random_state_end, random_state_gap)
     for n_estimator in n_estimators:
         predict_lens[n_estimator] = {}
         if n_estimator > 1:
             for last_round in last_rounds:
                 for data_length in data_lengths:
-                    print(f'last_round={last_round}, data_length={data_length}')
+                    if len(data_lengths) > 10:
+                        print(f'last_round={last_round}, data_length={data_length}')
                     cnt = 0
                     hist_data, first_bonus = load_data_by_db(db_file_path=db_file_path, last_round=last_round, length=data_length)
                     for train_x in hist_data:
                         train_x[1].insert(0, train_x[0])
                     if data_length not in predict_lens[n_estimator]:
                         predict_lens[n_estimator][data_length] = {}
-                    for random_state in tqdm(range(random_state_begin, random_state_end, random_state_gap)):
+                    for random_state in random_state_range:
                         predict_len = predict_and_test(last_round,
                                                        first_bonus,
                                                        hist_data,
@@ -411,18 +417,23 @@ def print_predicts(predict_lens,
     return result_set
 
 
-def main(parameters, version, sum_min=-1, sum_max=-1, write_to_file=False, write_to_db=False, trial=5, verbose=0):
+def main(parameters, version, sum_min=-1, sum_max=-1, write_to_file=False, write_to_db=False, trial=5, show_progress=True, verbose=0):
     """ main """
     print(f'start   [now={datetime.now()}]')
     print(parameters["db_file_path"])
     print(parameters.keys())
+    print("main.db_file_path = ", db_file_path)https://checkout3.officekeeper.co.kr/alert?Culture=1042&AlertSiteInfo=02d4b670db8fdd84241948dce9ab5ecb%7Cplay.google.com%7C%7CENTERTAINMENT%7CCategory%7CWarning%7C6%7C63553%7C23061605%7C52%7C67a9b1bcc20d56fa%7C274766%7Caimmo-aip-0164%7C230&AlertSiteInfoDigest=c32dbd040af6dd7f432568e931e331ebe546d01152fb9a75e71be67506f51c1e    
     db_file_path = '../db/metrics.db' if 'db_file_path' not in parameters else parameters["db_file_path"]
     write_db_file_path = '../db/metrics.db' if 'write_db_file_path' not in parameters else parameters["write_db_file_path"]
-    print("main.db_file_path = ", db_file_path)
+
     random_state_gap=parameters["random_state_gap"]
     random_state_begin=parameters["random_state_begin"]
     random_state_end=parameters["random_state_end"]
-    
+
+    if show_progress:
+        random_state_range = tqdm(range(random_state_begin, random_state_end, random_state_gap))
+    else:
+        random_state_range = range(random_state_begin, random_state_end, random_state_gap)
     for randon_state in range(random_state_begin, random_state_end, random_state_gap):
         predict_lens = main_process(version=version,
                                     n_estimators=parameters["n_estimators"],
@@ -435,7 +446,8 @@ def main(parameters, version, sum_min=-1, sum_max=-1, write_to_file=False, write
                                     db_file_path=db_file_path,
                                     write_db_file_path=write_db_file_path,
                                     verbose=verbose)
-        print(f'completed [now={datetime.now()}]')
+        if verbose > 0:
+            print(f'completed [now={datetime.now()}]')
         print(f'start to read and write data: [now={datetime.now()}]')
         result_set = print_predicts(predict_lens=predict_lens,
                                     sum_min=sum_min,
@@ -444,7 +456,8 @@ def main(parameters, version, sum_min=-1, sum_max=-1, write_to_file=False, write
                                     write_to_file=write_to_file,
                                     write_to_db=write_to_db,
                                     write_db_file_path=write_db_file_path)
-        print(f'complete to read and data: [now={datetime.now()}]')
+        if verbose > 0:
+            print(f'complete to read and data: [now={datetime.now()}]')
     return result_set
 
 
