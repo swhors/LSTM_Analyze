@@ -56,8 +56,8 @@ def create_randomforest_db(db_file_path, verbose=1):
 def insert_randomforest_db(db_file_path, version, db_datas, auto_commit=True, verbose=0):
     """ insert_randomforest_db """
     import os
-    print(os.getcwd())
-    print('db_file_path', db_file_path)
+    # print(os.getcwd())
+    # print('db_file_path', db_file_path)
     if version == 0:
         version = str(datetime.now().timestamp())
     with closing(sqlite3.connect(db_file_path)) as conn:
@@ -419,10 +419,10 @@ def print_predicts(predict_lens,
 
 def main(parameters, version, sum_min=-1, sum_max=-1, write_to_file=False, write_to_db=False, trial=5, show_progress=True, verbose=0):
     """ main """
-    print(f'start   [now={datetime.now()}]')
-    print(parameters["db_file_path"])
-    print(parameters.keys())
-    print("main.db_file_path = ", db_file_path)https://checkout3.officekeeper.co.kr/alert?Culture=1042&AlertSiteInfo=02d4b670db8fdd84241948dce9ab5ecb%7Cplay.google.com%7C%7CENTERTAINMENT%7CCategory%7CWarning%7C6%7C63553%7C23061605%7C52%7C67a9b1bcc20d56fa%7C274766%7Caimmo-aip-0164%7C230&AlertSiteInfoDigest=c32dbd040af6dd7f432568e931e331ebe546d01152fb9a75e71be67506f51c1e    
+    if verbose > 0:
+        print(f'start   [now={datetime.now()}]')
+        print(parameters.keys())
+        print("main.db_file_path = ", parameters["db_file_path"])
     db_file_path = '../db/metrics.db' if 'db_file_path' not in parameters else parameters["db_file_path"]
     write_db_file_path = '../db/metrics.db' if 'write_db_file_path' not in parameters else parameters["write_db_file_path"]
 
@@ -448,7 +448,7 @@ def main(parameters, version, sum_min=-1, sum_max=-1, write_to_file=False, write
                                     verbose=verbose)
         if verbose > 0:
             print(f'completed [now={datetime.now()}]')
-        print(f'start to read and write data: [now={datetime.now()}]')
+            print(f'start to read and write data: [now={datetime.now()}]')
         result_set = print_predicts(predict_lens=predict_lens,
                                     sum_min=sum_min,
                                     sum_max=sum_max,
