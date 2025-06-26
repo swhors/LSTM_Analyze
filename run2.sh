@@ -9,8 +9,11 @@
 # export START=3700 + 50
 # export START=116700 + 30
 # export START=113700 + 100
-export START=113650
-export GAP=10
+# export START=113600 + 100
+# export START=113800 + 100
+# export START=113200 + 100
+export START=114030
+export GAP=20
 export LAST_ROUND=1177
 
 export VERSION="T_01_13"
