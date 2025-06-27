@@ -15,15 +15,17 @@
 # export START=114000 + 100
 
 # export START=116800 + 100
-export START=116700
+# export START=1750505700 + 100
+export START=1750505600
 export GAP=100
 
 export LAST_ROUND_BEGIN=1177
 export LAST_ROUND_END=770
-export N_ESTIMATOR=45
+export N_ESTIMATOR=10
 export DATA_LENGTH=100
 
-export VERSION="T_01_15"
+export VERSION="T_01_92"
+
 
 PYTHONPATH=$PWD python runner.py --n_estimators $N_ESTIMATOR --data_lengths $DATA_LENGTH --random_state_gap 1 --random_state_begin $START --random_state_end $((START + GAP)) --last_rounds_begin $LAST_ROUND_BEGIN --last_rounds_end $LAST_ROUND_END --db_file_path "/db/metrics.db" --version $VERSION
 
