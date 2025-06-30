@@ -86,16 +86,16 @@ def insert_randomforest_db(db_file_path, version, db_datas, auto_commit=True, ve
 def rf_predict(train_X, n_estimators=100, random_state=350, trial=5, verbose=0):
     """ rf_predict """
     # 데이터를 Pandas DataFrame으로 변환합니다.
-    df = pd.DataFrame(train_X, columns=['회차', '번호1', '번호2', '번호3', '번호4', '번호5', '번호6'])
-    df = df.sort_values(by='회차').reset_index(drop=True)
+    df = pd.DataFrame(train_X, columns=['round', 'num1', 'num2', 'num3', 'num4', 'num5', 'num6'])
+    df = df.sort_values(by='round').reset_index(drop=True)
 
     if verbose > 0:
         print(df)
 
     # 기계 학습을 위한 데이터 준비
     # 각 회차의 당첨 번호(X)와 바로 다음 회차의 당첨 번호(y)를 사용합니다.
-    X = df[['번호1', '번호2', '번호3', '번호4', '번호5', '번호6']]
-    y = df[['번호1', '번호2', '번호3', '번호4', '번호5', '번호6']].shift(-1)
+    X = df[['num1', 'num2', 'num3', 'num4', 'num5', 'num6']]
+    y = df[['num1', 'num2', 'num3', 'num4', 'num5', 'num6']].shift(-1)
 
     # 마지막 행은 다음 회차 데이터가 없으므로 제거합니다.
     X = X[:-1]
@@ -109,15 +109,16 @@ def rf_predict(train_X, n_estimators=100, random_state=350, trial=5, verbose=0):
 
     # 머신러닝 모델 선택 및 훈련
     # 랜덤 포레스트 회귀 모델을 사용합니다.
-    # the random_state parameter is used to control the randomness of the algorithm, ensuring reproducibility of results. 
+    # the random_state parameter is used to control the randomness of the algorithm,
+    # ensuring reproducibility of results. 
     # the n_estimators parameter specifies the number of decision trees in the forest. 
     model = RandomForestRegressor(n_estimators=n_estimators,
                                   random_state=random_state,
                                   verbose=verbose) # n_estimators: 만들 트리의 개수
     model.fit(X, y)
 
-    # 예측할 회차의 이전 회차 데이터 (1173회차)
-    last_draw = df.iloc[-1][['번호1', '번호2', '번호3', '번호4', '번호5', '번호6']].values.reshape(1, -1)
+    # 예측할 회차의 이전 회차 데이터
+    last_draw = df.iloc[-1][['num1', 'num2', 'num3', 'num4', 'num5', 'num6']].values.reshape(1, -1)
 
     if verbose > 0:
         print('last_draw', last_draw)
@@ -157,6 +158,163 @@ def rf_predict(train_X, n_estimators=100, random_state=350, trial=5, verbose=0):
         final_prediction = sorted(list(predicted_numbers))[:6]
         predicted_numbers_set.append(final_prediction)
     return predicted_numbers_set
+
+
+def rf_predict_v2(train_X, parameters, trial=5, verbose=0):
+    """ rf_predict """
+    # 데이터를 Pandas DataFrame으로 변환합니다.
+    df = pd.DataFrame(train_X, columns=['round', 'num1', 'num2', 'num3', 'num4', 'num5', 'num6'])
+    df = df.sort_values(by='round').reset_index(drop=True)
+
+    if verbose > 0:
+        print(df)
+
+    # 기계 학습을 위한 데이터 준비
+    # 각 회차의 당첨 번호(X)와 바로 다음 회차의 당첨 번호(y)를 사용합니다.
+    X = df[['num1', 'num2', 'num3', 'num4', 'num5', 'num6']]
+    y = df[['num1', 'num2', 'num3', 'num4', 'num5', 'num6']].shift(-1)
+
+    # 마지막 행은 다음 회차 데이터가 없으므로 제거합니다.
+    X = X[:-1]
+    y = y.dropna()
+    
+    if verbose > 0:
+        print("\n--- 훈련 데이터 (X) ---")
+        print(X.head())
+        print("\n--- 정답 데이터 (y) ---")
+        print(y.head())
+
+    # 머신러닝 모델 선택 및 훈련
+    # 랜덤 포레스트 회귀 모델을 사용합니다.
+    # the random_state parameter is used to control the randomness of the algorithm,
+    # ensuring reproducibility of results. 
+    # the n_estimators parameter specifies the number of decision trees in the forest. 
+    model = RandomForestRegressor(**parameters) # n_estimators: 만들 트리의 개수
+    model.fit(X, y)
+
+    # 예측할 회차의 이전 회차 데이터
+    last_draw = df.iloc[-1][['num1', 'num2', 'num3', 'num4', 'num5', 'num6']].values.reshape(1, -1)
+
+    if verbose > 0:
+        print('last_draw', last_draw)
+
+    # 다음 번호 예측
+    predicted_numbers_set = []
+    for i in range(trial):
+        predicted_numbers_float = model.predict(last_draw)
+        # 예측된 번호 처리
+        # 1. 소수점을 반올림하여 정수로 만듭니다.
+        # 2. 1~45 사이의 값으로 보정합니다.
+        # 3. 중복된 번호를 제거하고 6개를 선택합니다.
+        predicted_numbers = set()
+        for num in predicted_numbers_float[0]:
+            # 반올림하여 정수로 변환
+            int_num = int(round(num))
+            # 1보다 작으면 1로, 45보다 크면 45로 보정
+            if int_num < 1:
+                int_num = 1
+            elif int_num > 45:
+                int_num = 45
+            predicted_numbers.add(int_num)
+        # 중복 제거 후 6개가 안되면, 부족한 만큼 다른 번호로 채웁니다.
+        # (여기서는 가장 빈도가 높은 번호들 중 예측되지 않은 번호를 추가하는 방식을 사용)
+        if len(predicted_numbers) < 6:
+            all_numbers = df[['번호1', '번호2', '번호3', '번호4', '번호5', '번호6']].values.flatten()
+            counts = pd.Series(all_numbers).value_counts()
+    
+            extra_needed = 6 - len(predicted_numbers)
+            for num in counts.index:
+                if extra_needed == 0:
+                    break
+                if num not in predicted_numbers:
+                    predicted_numbers.add(num)
+                    extra_needed -= 1
+        # 최종 예측 번호를 정렬하여 출력
+        final_prediction = sorted(list(predicted_numbers))[:6]
+        predicted_numbers_set.append(final_prediction)
+    return predicted_numbers_set
+
+
+def hyper_param_tuning_v1(last_round,
+                          data_length,
+                          db_file_path,
+                          test_params = {}):
+    from sklearn.ensemble import RandomForestRegressor
+    from sklearn.model_selection import GridSearchCV
+
+    if "n_estimators" in test_params:
+        n_estimators = test_params["n_estimators"]
+    else:
+        n_estimators = [100, 200, 300]
+    
+    if "max_depth" in test_params:
+        max_depth = test_params["n_estimators"]
+    else:
+        max_depth = [5, 10, 20, 30, 40, None]
+
+    if "max_features" in test_params:
+        max_features = test_params["max_features"]
+    else:
+        max_features = ['auto', 'sqrt', 'log2']
+
+    if "random_states" in test_params:
+        random_states = test_params["random_states"]
+    else:
+        random_states = [ i for i in range(113700, 113700 + 100)]
+
+    # Define the parameter grid
+    param_grid = {
+        'n_estimators': n_estimators,
+        'max_depth': max_depth,
+        'min_samples_split': [2, 5, 10],
+        'min_samples_leaf': [1, 2, 4],
+        'max_features': max_features,
+        'random_state': random_states
+    }
+    h_data, _ = load_data_by_db(db_file_path=db_file_path,
+                             last_round=last_round,
+                             length=data_length)
+    # print('h_data', h_data)
+    # print('h_data\'s len', len(h_data))
+    train_X = []
+    # for i in range(len(h_data[0]) - 1):
+    #     train_X.append(h_data[0][1])    
+    # for train_x in h_data:
+    #     train_x[1].insert(0, train_x[0])
+    for i in range(len(h_data)):
+        train_X.append(h_data[i][1])
+    # print('train_X', train_X)
+
+    # Data Processing
+    df = pd.DataFrame(train_X, columns=['num1', 'num2', 'num3', 'num4', 'num5', 'num6'])
+    # df = df.sort_values(by='round').reset_index(drop=True)
+    X_train = df[['num1', 'num2', 'num3', 'num4', 'num5', 'num6']]
+    y_train = df[['num1', 'num2', 'num3', 'num4', 'num5', 'num6']].shift(-1)
+    # print(y_train)
+
+    X_train = X_train[:-1]
+    y_train = y_train.dropna()
+
+    # Initialize the model
+    # model = RandomForestRegressor(n_estimators=n_estimators,
+    #                               random_state=random_state,
+    #                               verbose=verbose) # n_estimators: 만들 트리의 개수
+    # print('cur step 0.')
+    rf = RandomForestRegressor(verbose=0)
+    # print('cur step 1.')
+
+    # Initialize GridSearchCV
+    grid_search = GridSearchCV(estimator=rf, param_grid=param_grid, cv=5, n_jobs=-1, verbose=0)
+    # print('cur step 2.')
+
+    # Fit the grid search to the data
+    grid_search.fit(X_train, y_train)
+
+    # print('cur step 3.')
+    # Get the best parameters and best score
+    print("Best parameters:", grid_search.best_params_)
+    print("Best score:", grid_search.best_score_)
+    print("All results: ", type(grid_search.cv_results_))
 
 
 def rf_prediction_test(round_nums,
@@ -222,6 +380,63 @@ def predict_and_test(round, bonus, h_data, n_estimators, random_state, trial=5, 
     return predict_len1
 
 
+def predict_and_test_v2(round,
+                        bonus,
+                        h_data,
+                        parameters,
+                        trial=5,
+                        with_data=False,
+                        verbose=0):
+    """ predict_and_test """
+    train_X = []
+    test_X = []
+    for i in range(len(h_data) - 1):
+        train_X.append(h_data[i][1])
+    test_X = h_data[len(h_data) - 1][1]
+    # print('train_X = ', train_X)
+    predicted_numbers_set = rf_predict_v2(train_X=train_X,
+                                          parameters=parameters,
+                                          trial=trial,
+                                          verbose=verbose)
+    predict_len1=rf_prediction_test(round,
+                                    test_X,
+                                    bonus,
+                                    predicted_numbers_set,
+                                    parameters['n_estimators'],
+                                    parameters['random_state'],
+                                    verbose)
+    if with_data:
+        return predicted_numbers_set, predict_len1
+    return predict_len1
+
+
+def predict_and_test_v3(round,
+                        bonus,
+                        h_data,
+                        parameters,
+                        trial=5,
+                        with_data=False,
+                        verbose=0):
+    """ predict_and_test """
+    numbers = []
+    for i in range(len(h_data) - 1):
+        numbers.append(h_data[i][1])
+    predicted_numbers_set = rf_predict_v3(train_X=numbers,
+                                          parameters=parameters,
+                                          trial=trial,
+                                          verbose=verbose)
+    predict_len1=rf_prediction_test(round,
+                                    test_X,
+                                    bonus,
+                                    predicted_numbers_set,
+                                    parameters['n_estimators'],
+                                    parameters['random_state'],
+                                    verbose)
+    if with_data:
+        return predicted_numbers_set, predict_len1
+    return predict_len1
+
+
 def main_predict(n_estimator,
                  last_round,
                  data_length,
@@ -242,6 +457,29 @@ def main_predict(n_estimator,
                                                 trial=trial,
                                                 with_data=True,
                                                 verbose=verbose)
+    return predicted_numbers_set
+
+
+def main_predict_v2(last_round,
+                    data_length,
+                    db_file_path,
+                    trial,
+                    parameters,
+                    verbose=0):
+    """ main_predict """
+    predict_lens = {}
+    hist_data, first_bonus = load_data_by_db(db_file_path=db_file_path,
+                                             last_round=last_round,
+                                             length=data_length)
+    for train_x in hist_data:
+        train_x[1].insert(0, train_x[0])
+    predicted_numbers_set, _ = predict_and_test_v2(round=last_round,
+                                                   bonus=first_bonus,
+                                                   h_data=hist_data,
+                                                   parameters=parameters,
+                                                   trial=trial,
+                                                   with_data=True,
+                                                   verbose=verbose)
     return predicted_numbers_set
 
 
@@ -417,7 +655,18 @@ def print_predicts(predict_lens,
     return result_set
 
 
-def main(parameters, version, sum_min=-1, sum_max=-1, write_to_file=False, write_to_db=False, trial=5, show_progress=True, verbose=0):
+def main(parameters,
+         version,
+         sum_min=-1,
+         sum_max=-1,
+         write_to_file=False,
+         write_to_db=False,
+         trial=5,
+         show_progress=True,
+         is_tuning=False,
+         last_round=1178,
+         op_version=1,
+         verbose=0):
     """ main """
     if verbose > 0:
         print(f'start   [now={datetime.now()}]')
@@ -426,39 +675,60 @@ def main(parameters, version, sum_min=-1, sum_max=-1, write_to_file=False, write
     db_file_path = '../db/metrics.db' if 'db_file_path' not in parameters else parameters["db_file_path"]
     write_db_file_path = '../db/metrics.db' if 'write_db_file_path' not in parameters else parameters["write_db_file_path"]
 
-    random_state_gap=parameters["random_state_gap"]
-    random_state_begin=parameters["random_state_begin"]
-    random_state_end=parameters["random_state_end"]
-
-    if show_progress:
-        random_state_range = tqdm(range(random_state_begin, random_state_end, random_state_gap))
+    random_state_gap = parameters["random_state_gap"]
+    random_state_begin = parameters["random_state_begin"]
+    random_state_end = parameters["random_state_end"]
+    if is_tuning:
+        """
+        "n_estimators": [args.n_estimators],
+            "data_lengths": [args.data_lengths],
+            "random_state_gap": args.random_state_gap,
+            "random_state_begin": args.random_state_begin,
+            "random_state_end": args.random_state_end,
+            "last_rounds": [i for i in range(args.last_rounds_begin, args.last_rounds_end, -1)],
+            "db_file_path": db_path,
+            "write_db_file_path": db_path
+        """
+        test_params = {
+            "n_estimators": parameters["n_estimators"],
+            "random_states": [i for i in range(random_state_begin, random_state_end)],
+            "max_depth": [100],
+            "max_features": ['auto', 'sqrt', 'log2']
+        }
+        hyper_param_tuning_v1(last_round=parameters["last_rounds"][0],
+                              data_length =parameters["data_lengths"][0],
+                              db_file_path=db_file_path,
+                              test_params=test_params)
     else:
-        random_state_range = range(random_state_begin, random_state_end, random_state_gap)
-    for randon_state in range(random_state_begin, random_state_end, random_state_gap):
-        predict_lens = main_process(version=version,
-                                    n_estimators=parameters["n_estimators"],
-                                    last_rounds=parameters["last_rounds"],
-                                    data_lengths=parameters["data_lengths"],
-                                    random_state_gap=1,
-                                    random_state_begin=randon_state,
-                                    random_state_end=randon_state+1,
-                                    trial=trial,
-                                    db_file_path=db_file_path,
-                                    write_db_file_path=write_db_file_path,
-                                    verbose=verbose)
-        if verbose > 0:
-            print(f'completed [now={datetime.now()}]')
-            print(f'start to read and write data: [now={datetime.now()}]')
-        result_set = print_predicts(predict_lens=predict_lens,
-                                    sum_min=sum_min,
-                                    sum_max=sum_max,
-                                    version=version,
-                                    write_to_file=write_to_file,
-                                    write_to_db=write_to_db,
-                                    write_db_file_path=write_db_file_path)
-        if verbose > 0:
-            print(f'complete to read and data: [now={datetime.now()}]')
-    return result_set
+        if show_progress:
+            random_state_range = tqdm(range(random_state_begin, random_state_end, random_state_gap))
+        else:
+            random_state_range = range(random_state_begin, random_state_end, random_state_gap)
+        for randon_state in range(random_state_begin, random_state_end, random_state_gap):
+            predict_lens = main_process(version=version,
+                                        n_estimators=parameters["n_estimators"],
+                                        last_rounds=parameters["last_rounds"],
+                                        data_lengths=parameters["data_lengths"],
+                                        random_state_gap=1,
+                                        random_state_begin=randon_state,
+                                        random_state_end=randon_state+1,
+                                        trial=trial,
+                                        db_file_path=db_file_path,
+                                        write_db_file_path=write_db_file_path,
+                                        verbose=verbose)
+            if verbose > 0:
+                print(f'completed [now={datetime.now()}]')
+                print(f'start to read and write data: [now={datetime.now()}]')
+            result_set = print_predicts(predict_lens=predict_lens,
+                                        sum_min=sum_min,
+                                        sum_max=sum_max,
+                                        version=version,
+                                        write_to_file=write_to_file,
+                                        write_to_db=write_to_db,
+                                        write_db_file_path=write_db_file_path)
+            if verbose > 0:
+                print(f'complete to read and data: [now={datetime.now()}]')
+        return result_set
 
 
 def draw_data_graph(title,
@@ -469,7 +739,7 @@ def draw_data_graph(title,
                     y_label,
                     width=0,
                     height=0,
-                    file_name="",
+                    file_path_name="",
                     is_bar=True,
                     verb=False):
     """ draw_data_graph """
@@ -484,9 +754,9 @@ def draw_data_graph(title,
         for key in info:
             title += (key + ":" + str(info[key]) + "\n")
     plt.title(title)
-    if len(file_name) > 0:
+    if len(file_path_name) > 0:
         plt.legend(loc=0)
-        plt.savefig(file_name)
+        plt.savefig(file_path_name)
     if width > 0 and height > 0:
         plt.figure(figsize=(width,height))
     plt.show()

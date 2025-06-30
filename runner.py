@@ -50,6 +50,7 @@ def get_args():
                         help='db file location')
     parser.add_argument('--version', metavar='version', default="T_00_00",
                         help='version')
+    parser.add_argument('--is_tuning', type=int, default=0)
     args = parser.parse_args()
     return args
 
@@ -66,6 +67,7 @@ if __name__=="__main__":
     print(f'last_rounds_begin  : {args.last_rounds_begin}')
     print(f'last_rounds_end    : {args.last_rounds_end}')
     print(f'db_path            : {args.db_file_path}')
+    print(f'is_tuning          : {args.is_tuning}')
 
     run_this = False
 
@@ -84,4 +86,10 @@ if __name__=="__main__":
             "db_file_path": db_path,
             "write_db_file_path": db_path
             }
-        result_sets = main(parameters=parameters, version=version, sum_min=0, sum_max=-1, trial=1, write_to_db=True)
+        result_sets = main(parameters=parameters,
+                           version=version,
+                           sum_min=0,
+                           sum_max=-1,
+                           trial=1,
+                           is_tuning=args.is_tuning,
+                           write_to_db=True)
