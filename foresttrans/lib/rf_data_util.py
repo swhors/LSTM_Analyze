@@ -114,7 +114,12 @@ def rf_predict(train_X, n_estimators=100, random_state=350, trial=5, verbose=0):
     # the n_estimators parameter specifies the number of decision trees in the forest. 
     model = RandomForestRegressor(n_estimators=n_estimators,
                                   random_state=random_state,
-                                  verbose=verbose) # n_estimators: 만들 트리의 개수
+                                  verbose=verbose,
+                                  max_depth=10,
+                                  max_features='sqrt',
+                                  min_samples_leaf=4,
+                                  min_samples_split=2,
+                                  ) # n_estimators: 만들 트리의 개수
     model.fit(X, y)
 
     # 예측할 회차의 이전 회차 데이터
