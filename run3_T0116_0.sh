@@ -1,0 +1,13 @@
+export GAP=100
+export LAST_ROUND=1177
+export N_ESTIMATOR=10
+export VERSION="T_01_15"
+export DATA_LENGTH=40
+
+STARTS=(113100 113200 113300 113400 113500 113600 113700 113800 113900 114000 114100 114200 31116650 31116750 1750505700 )
+
+for START in "${STARTS[@]}"; do
+  echo "$START"
+PYTHONPATH=$PWD python runner.py --n_estimators $N_ESTIMATOR --data_lengths $DATA_LENGTH --random_state_gap 1 --random_state_begin $START --random_state_end $((START + GAP)) --last_rounds_begin $LAST_ROUND --last_rounds_end 770 --db_file_path "/db/metrics.db" --version $VERSION --is_tuning 1
+
+done
