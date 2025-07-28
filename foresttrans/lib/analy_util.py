@@ -142,7 +142,8 @@ def get_pre_bef(nums, wanted_num):
                 parts.append(nums[pos])
                 parts.append(-1)
             results.append(parts)
-    return results
+    diff = [results[i][2] - results[i][0] for i in range(len(results)-1)]
+    return results, diff
             
 
 def draw_average(title,
@@ -189,9 +190,42 @@ def draw_average(title,
                  save_fig=save_fig)
 
 
+def get_extdatas(show_before, show_after, before, ext_data, after):
+    """ get_ext """
+    if show_after and show_before:
+        ext_datas = [before, ext_data, after]
+    if show_after == False and show_before == False:
+        ext_datas = [ext_data]
+    if show_after and show_before==False:
+        ext_datas = [ext_data, after]
+    if show_after == False and show_before:
+        ext_datas = [before, ext_data]
+    return ext_datas
+
+
+def get_diff_only(datas):
+    """ get_diff_only """
+    diff = [abs(datas[i]-datas[i-1]) for i in range(1, len(datas))]
+    return diff
+
+
+def draw_diff_num(title,
+                  my_list,
+                  length,
+                  helper_line_nums=[10,20,30,40],
+                  save_fig=False):
+    """ draw_diff_num """
+    diff = get_diff_only(my_list)
+    draw_scatter([diff],
+                 f'{title}_diff_{length}',
+                 True,
+                 True,
+                 show_cols=[0],
+                 helper_line_nums=helper_line_nums,
+                 save_fig=save_fig)
+
+
 def get_frequency(datas):
-    # datas = my_list.copy()
-    # datas.sort()
     ordered_dict = {}
     for key in datas:
         if key not in ordered_dict:
@@ -253,7 +287,7 @@ def get_information(selected,
     ordered = list(set(ordered))
     freq_parts = get_frequency(my_list)
     freq_all = get_frequency(num_data)
-    pre_bef = get_pre_bef(num_data, last_num)
+    pre_bef, _ = get_pre_bef(num_data, last_num)
     draw_markdown([
         ('최소 값',f'{ordered[:wanted_data_length]}'),
         ('최대 값',f'{ordered[-wanted_data_length:]}'),
@@ -275,19 +309,6 @@ def get_information(selected,
                      save_fig=save_fig)
 
 
-def get_extdatas(show_before, show_after, before, ext_data, after):
-    """ get_ext """
-    if show_after and show_before:
-        ext_datas = [before, ext_data, after]
-    if show_after == False and show_before == False:
-        ext_datas = [ext_data]
-    if show_after and show_before==False:
-        ext_datas = [ext_data, after]
-    if show_after == False and show_before:
-        ext_datas = [before, ext_data]
-    return ext_datas
-
-
 def get_information_v2(selected,
                        last_results,
                        ext_datas,
@@ -302,7 +323,8 @@ def get_information_v2(selected,
                        show_after=False,
                        show_before=False,
                        show_average=True,
-                       min_max_last_num_length=5
+                       min_max_last_num_length=5,
+                       show_diff_nums=False
                        ):
     length = 8
     if start_pos_0 > len(last_results[selected]):
@@ -351,7 +373,7 @@ def get_information_v2(selected,
     ordered.sort()
     ordered = list(set(ordered))
     freq_all = get_frequency(num_data)
-    pre_bef = get_pre_bef(num_data, last_num)
+    pre_bef, pre_bef_diff = get_pre_bef(num_data, last_num)
     draw_markdown([
         ('최소 값',f'{ordered[:wanted_data_length]}'),
         ('최대 값',f'{ordered[-wanted_data_length:]}'),
@@ -360,9 +382,8 @@ def get_information_v2(selected,
         ('마지막 값들',f'{num_data[-wanted_data_length:]}'),
         ('자주 나오는 값(부분)',f'{freq_parts[-wanted_data_length:]}'),
         ('자주 나오는 값(전체)',f'{freq_all[-wanted_data_length:]}'),
-        ('마지막 수의 앞과 뒤',f'{pre_bef}')
-    ]
-    )
+        ('마지막 수의 앞과 뒤 #1',f'{pre_bef}'),
+        ('마지막 수의 앞과 뒤 #2',f'{pre_bef_diff}')])
     if show_average:
         for length in lengths:
             draw_average(title=title,
@@ -374,6 +395,12 @@ def get_information_v2(selected,
                          save_fig=save_fig,
                          min_max_last_num_length=min_max_last_num_length
                         )
+    if show_diff_nums:
+        draw_diff_num(title=title,
+                      my_list=my_list,
+                      length=length,
+                      helper_line_nums=helper_line_nums_2,
+                      save_fig=save_fig)
 
 
 class DataScaling():
