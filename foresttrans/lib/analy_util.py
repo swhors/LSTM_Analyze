@@ -63,7 +63,11 @@ def draw_scatter(Y: list,
                  marker_size=3,
                  fig_size=(12,6),
                  save_fig=False,
-                 show_time=False
+                 show_time=False,
+                 show_vline=True,
+                 vline_color='red',
+                 vline_linestyle='dotted',
+                 vline_poses=[]
                 ):
     """ draw_scatter """
     plt.figure(figsize=fig_size)
@@ -84,7 +88,15 @@ def draw_scatter(Y: list,
         color = "tab:gray" if helper_line_num % 2 == 0 else 'tab:cyan'
         plt.plot(X, helper_line, color=color)
 
+    y_max = 1
+    y_min = 45
     for show_col in show_cols:
+        max_val = max(Y[show_col])
+        min_val = min(Y[show_col])
+        if y_max < max_val:
+            y_max = max_val
+        if y_min > min_val:
+            y_min = min_val
         if show_col < len(Y):
             if show_label:
                 label = f'Nums{show_col}'            
@@ -114,6 +126,20 @@ def draw_scatter(Y: list,
     plt.xlabel('rounds')
     plt.ylabel('selected')
     plt.title(title)
+    if show_vline:
+        for vline_pos in vline_poses:
+            if vline_pos[1] < y_min:
+                cur_y_min = y_min
+            else:
+                cur_y_min = vline_pos[1]
+            if vline_pos[2] > y_max:
+                cur_y_max = y_max
+            else:
+                cur_y_max = vline_pos[2]
+            plt.vlines(x=vline_pos[0], ymin=cur_y_min, ymax=cur_y_max, color=vline_color, linestyle=vline_linestyle)
+        plt.vlines(x=len(Y[0])-3, ymin=y_min, ymax=y_max, color=vline_color, linestyle=vline_linestyle)
+        plt.vlines(x=len(Y[0])-2, ymin=y_min, ymax=y_max, color=vline_color, linestyle=vline_linestyle)
+        plt.vlines(x=len(Y[0])-1, ymin=y_min, ymax=y_max, color=vline_color, linestyle=vline_linestyle)
     if show_label:
         plt.legend()
     if save_fig:
@@ -324,7 +350,11 @@ def get_information_v2(selected,
                        show_before=False,
                        show_average=True,
                        min_max_last_num_length=5,
-                       show_diff_nums=False
+                       show_diff_nums=False,
+                       show_vline=True,
+                       vline_color='black',
+                       vline_linestyle='dotted',
+                       vline_poses=[],
                        ):
     length = 8
     if start_pos_0 > len(last_results[selected]):
@@ -360,7 +390,11 @@ def get_information_v2(selected,
                  marker_size=3,
                  fig_size=(12,6),
                  save_fig=save_fig,
-                 show_time=False
+                 show_time=False,
+                 show_vline=show_vline,
+                 vline_color=vline_color,
+                 vline_linestyle=vline_linestyle,
+                 vline_poses=vline_poses
                 )
     my_list = last_results[selected][start_pos_1:]
     freq_parts = get_frequency(my_list)
