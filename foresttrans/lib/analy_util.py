@@ -262,6 +262,63 @@ def get_frequency(datas):
     return ordered_dict_sorted
 
 
+def analyze_previous(selected,
+                     num_data,
+                     user_selected,
+                     start_pos_1,
+                     wanted_data_length,
+                     title, show_average,
+                     show_diff_nums,
+                     helper_line_nums_2,
+                     lengths,
+                     show_diff,
+                     min_max_last_num_length,
+                     save_fig
+                    ):
+    """ analyze_previous """
+    freq_parts = get_frequency(num_data)
+    partial_data = num_data[start_pos_1:]
+    last_num = num_data[-1]
+    last_num = num_data[-1:][0]
+    # print('my_list #1 ', num_data[start_pos_1:])
+    # print('my_list #2 ', user_selected)
+    # print('my_list', partial_data)
+    ordered = partial_data.copy()
+    ordered.sort()
+    ordered = list(set(ordered))
+    freq_all = get_frequency(num_data)
+    pre_bef, pre_bef_diff = get_pre_bef(num_data, last_num)
+    draw_markdown([
+        ('최소 값',f'{ordered[:wanted_data_length]}'),
+        ('최대 값',f'{ordered[-wanted_data_length:]}'),
+        ('사용자 선택',f'{user_selected}'),
+        ('마지막 값',f'{last_num}'),
+        ('마지막 값들',f'{num_data[-wanted_data_length:]}'),
+        ('자주 나오는 값(부분)',f'{freq_parts[-wanted_data_length:]}'),
+        ('자주 나오는 값(전체)',f'{freq_all[-wanted_data_length:]}'),
+        ('마지막 수의 앞과 뒤 #1',f'{pre_bef}'),
+        ('마지막 수의 앞과 뒤 #2',f'{pre_bef_diff}')])
+    partial_data += [user_selected]
+    # print('partial_data = ', partial_data)
+    if show_average:
+        for length in lengths:
+            draw_average(title=title,
+                         my_list=partial_data,
+                         length=length,
+                         selected=selected,
+                         helper_line_nums=helper_line_nums_2,
+                         show_diff=show_diff,
+                         save_fig=save_fig,
+                         min_max_last_num_length=min_max_last_num_length
+                        )
+    if show_diff_nums:
+        draw_diff_num(title=title,
+                      my_list=partial_data,
+                      length=length,
+                      helper_line_nums=helper_line_nums_2,
+                      save_fig=save_fig)
+
+
 def get_information(selected,
                     num_data,
                     ext_data,
@@ -272,7 +329,7 @@ def get_information(selected,
                     lengths=[5,8,10,13,15],
                     start_pos_0=0,
                     start_pos_1=0,
-                    save_fig=False
+                    save_fig=False,
                    ):
     length = 8
     if start_pos_0 > len(num_data):
@@ -280,20 +337,6 @@ def get_information(selected,
     if start_pos_1 > len(num_data):
         start_pos_1 = 0
     title = f'Line_{selected+1}_{ext_data}'
-    """
-                 Y: list,
-                 title,
-                 show_line=True,
-                 show_dot=True,
-                 show_cols=[0],
-                 ext_datas=[],
-                 show_label=True,
-                 helper_line_nums=[],
-                 marker_size=3,
-                 fig_size=(12,6),
-                 save_fig=False,
-                 show_time=False    
-    """
     draw_scatter(Y=[num_data[start_pos_0:]],
                  title=title,
                  show_line=True,
@@ -356,6 +399,7 @@ def get_information_v2(selected,
                        vline_linestyle='dotted',
                        vline_poses=[],
                        ):
+    """ get_information_v2 """
     length = 8
     if start_pos_0 > len(last_results[selected]):
         start_pos_0 = 0
@@ -372,14 +416,11 @@ def get_information_v2(selected,
         print("error : data\'s size is not equal ext_data\'s size.")
         return
     ext_datas = [(i, ext_datas[i]) for i in range(len(ext_datas))]
-    num_data = last_results[selected]
     if show_before:
         ext_data = ext_datas[1]
-        
     else:
         ext_data = ext_datas[0]
     title = f'Line_{selected+1}_{ext_data}'
-    # print(ext_datas)
     draw_scatter(Y=Ys,
                  title=title,
                  show_line=True,
@@ -396,45 +437,100 @@ def get_information_v2(selected,
                  vline_linestyle=vline_linestyle,
                  vline_poses=vline_poses
                 )
-    my_list = last_results[selected][start_pos_1:]
-    freq_parts = get_frequency(my_list)
-    last_num = num_data[-1:][0]
-    # print('my_list #1 ', last_results[selected][start_pos_1:])
-    # print('my_list #2 ', ext_data[1])
-    # print('my_list', my_list)
-    my_list += [ext_data[1]]    
-    ordered = my_list.copy()
-    ordered.sort()
-    ordered = list(set(ordered))
-    freq_all = get_frequency(num_data)
-    pre_bef, pre_bef_diff = get_pre_bef(num_data, last_num)
-    draw_markdown([
-        ('최소 값',f'{ordered[:wanted_data_length]}'),
-        ('최대 값',f'{ordered[-wanted_data_length:]}'),
-        ('사용자 선택',f'{ext_data[1]}'),
-        ('마지막 값',f'{last_num}'),
-        ('마지막 값들',f'{num_data[-wanted_data_length:]}'),
-        ('자주 나오는 값(부분)',f'{freq_parts[-wanted_data_length:]}'),
-        ('자주 나오는 값(전체)',f'{freq_all[-wanted_data_length:]}'),
-        ('마지막 수의 앞과 뒤 #1',f'{pre_bef}'),
-        ('마지막 수의 앞과 뒤 #2',f'{pre_bef_diff}')])
-    if show_average:
-        for length in lengths:
-            draw_average(title=title,
-                         my_list=my_list,
-                         length=length,
-                         selected=selected,
-                         helper_line_nums=helper_line_nums_2,
-                         show_diff=show_diff,
-                         save_fig=save_fig,
-                         min_max_last_num_length=min_max_last_num_length
-                        )
-    if show_diff_nums:
-        draw_diff_num(title=title,
-                      my_list=my_list,
-                      length=length,
-                      helper_line_nums=helper_line_nums_2,
-                      save_fig=save_fig)
+    analyze_previous(selected=selected,
+                     num_data=last_results[selected],
+                     user_selected=ext_data[1],
+                     start_pos_1=start_pos_1,
+                     wanted_data_length=wanted_data_length,
+                     title=title,
+                     show_average=show_average,
+                     show_diff_nums=show_diff_nums,
+                     helper_line_nums_2=helper_line_nums_2,
+                     lengths=lengths,
+                     show_diff=show_diff,
+                     min_max_last_num_length=min_max_last_num_length,
+                     save_fig=save_fig
+                   )
+
+
+def get_information_v3(selected,
+                       last_results,
+                       ext_datas,
+                       wanted_data_length,
+                       helper_line_nums_1,
+                       helper_line_nums_2,
+                       show_diff=False,
+                       lengths=[5,8,10,13,15],
+                       start_pos_0=0,
+                       start_pos_1=0,
+                       save_fig=False,
+                       show_ext_lines=[],
+                       show_after=False,
+                       show_before=False,
+                       show_average=True,
+                       min_max_last_num_length=5,
+                       show_diff_nums=False,
+                       show_vline=True,
+                       vline_color='black',
+                       vline_linestyle='dotted',
+                       vline_poses=[],
+                       ):
+    """ get_information_v3 """
+    length = 8
+    if start_pos_0 > len(last_results[selected]):
+        start_pos_0 = 0
+    if start_pos_1 > len(last_results[selected]):
+        start_pos_1 = 0
+    
+    Ys = []
+    
+    for ext_line_num in show_ext_lines:
+        Ys.append(last_results[ext_line_num][start_pos_0:])
+
+    show_cols = [i for i in range(len(Ys))]
+    
+    if len(Ys) != len(ext_datas):
+        print("error : data\'s size is not equal ext_data\'s size.")
+        return
+    
+    ext_datas = [(i, ext_datas[i]) for i in range(len(ext_datas))]
+    num_data = last_results[selected]
+    if show_before:
+        ext_data = ext_datas[1]
+        
+    else:
+        ext_data = ext_datas[0]
+    title = f'Line_{selected+1}_{ext_data}'
+    draw_scatter(Y=Ys,
+                 title=title,
+                 show_line=True,
+                 show_dot=True,
+                 show_cols=show_cols,
+                 ext_datas=ext_datas,
+                 helper_line_nums=helper_line_nums_1,
+                 marker_size=3,
+                 fig_size=(12,6),
+                 save_fig=save_fig,
+                 show_time=False,
+                 show_vline=show_vline,
+                 vline_color=vline_color,
+                 vline_linestyle=vline_linestyle,
+                 vline_poses=vline_poses
+                )
+    analyze_previous(selected=selected,
+                     num_data=last_results[selected],
+                     user_selected=ext_data,
+                     start_pos_1=start_pos_1,
+                     wanted_data_length=wanted_data_length,
+                     title=title,
+                     show_average=show_average,
+                     show_diff_nums=show_diff_nums,
+                     helper_line_nums_2=helper_line_nums_2,
+                     lengths=lengths,
+                     show_diff=show_diff,
+                     min_max_last_num_length=min_max_last_num_length,
+                     save_fig=save_fig
+                    )
 
 
 class DataScaling():
