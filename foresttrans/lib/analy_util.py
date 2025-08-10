@@ -119,9 +119,9 @@ def draw_scatter(Y: list,
                 last[show_col].append(ext[1])
                 loc = np.arange(len(Y[0])-1, len(Y[0]) + len(last[show_col])-1)
                 if show_line:
-                    plt.plot(loc, last[show_col], color=ex_colors[color_index])
+                    plt.plot(loc, last[show_col], color=colors[color_index])
                 if show_dot:
-                    plt.plot(loc, last[show_col], marker='o', markersize=marker_size, color=ex_colors[color_index])
+                    plt.plot(loc, last[show_col], marker='o', markersize=marker_size, color=colors[color_index])
                 color_index += 1
     plt.xlabel('rounds')
     plt.ylabel('selected')
@@ -140,8 +140,8 @@ def draw_scatter(Y: list,
         plt.vlines(x=len(Y[0])-3, ymin=y_min, ymax=y_max, color=vline_color, linestyle=vline_linestyle)
         plt.vlines(x=len(Y[0])-2, ymin=y_min, ymax=y_max, color=vline_color, linestyle=vline_linestyle)
         plt.vlines(x=len(Y[0])-1, ymin=y_min, ymax=y_max, color=vline_color, linestyle=vline_linestyle)
-    if show_label:
-        plt.legend()
+    # if show_label:
+    #     plt.legend()
     if save_fig:
         if show_time:
             plt.savefig(f'img/{title}_{datetime.now().strftime('%Y_%m%d_%H%M%S')}.png', bbox_inches='tight')
