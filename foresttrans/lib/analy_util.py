@@ -142,6 +142,9 @@ def draw_scatter(Y: list,
         plt.vlines(x=len(Y[0])-1, ymin=y_min, ymax=y_max, color=vline_color, linestyle=vline_linestyle)
     # if show_label:
     #     plt.legend()
+    plt.tick_params(axis='y', left=True, right=True, labelleft=True, labelright=True)
+    plt.tick_params(axis='x', top=True, bottom=True, labeltop=True, labelbottom=True)
+    plt.margins(x=0, y=0)
     if save_fig:
         if show_time:
             plt.savefig(f'img/{title}_{datetime.now().strftime('%Y_%m%d_%H%M%S')}.png', bbox_inches='tight')
