@@ -19,6 +19,7 @@ import matplotlib.pyplot as plt
 from tensorflow import keras
 from kerastuner.tuners import BayesianOptimization
 from IPython.display import Markdown
+import random
 
 
 def draw_markdown(rows: list):
@@ -50,6 +51,15 @@ def draw_graph(X, title):
     plt.title(title)
     plt.legend()
     plt.show()
+
+
+def get_random_color():
+    """ get_random_color """
+    """Generates a random RGB color tuple."""
+    r = random.random()
+    g = random.random()
+    b = random.random()
+    return (r, g, b)
 
 
 def draw_scatter(Y: list,
@@ -136,7 +146,13 @@ def draw_scatter(Y: list,
                 cur_y_max = y_max
             else:
                 cur_y_max = vline_pos[2]
-            plt.vlines(x=vline_pos[0], ymin=cur_y_min, ymax=cur_y_max, color=vline_color, linestyle=vline_linestyle)
+            if vline_color == "random":
+                cur_color = get_random_color()
+            else:
+                cur_color = vline_color
+            plt.vlines(x=vline_pos[0], ymin=cur_y_min, ymax=cur_y_max, color=cur_color, linestyle=vline_linestyle)
+        if vline_color == "random":
+            vline_color = get_random_color()
         plt.vlines(x=len(Y[0])-3, ymin=y_min, ymax=y_max, color=vline_color, linestyle=vline_linestyle)
         plt.vlines(x=len(Y[0])-2, ymin=y_min, ymax=y_max, color=vline_color, linestyle=vline_linestyle)
         plt.vlines(x=len(Y[0])-1, ymin=y_min, ymax=y_max, color=vline_color, linestyle=vline_linestyle)
