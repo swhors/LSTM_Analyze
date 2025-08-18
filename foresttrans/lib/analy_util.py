@@ -77,7 +77,8 @@ def draw_scatter(Y: list,
                  show_vline=True,
                  vline_color='red',
                  vline_linestyle='dotted',
-                 vline_poses=[]
+                 vline_poses=[],
+                 legend_right_pos=True
                 ):
     """ draw_scatter """
     plt.figure(figsize=fig_size)
@@ -156,8 +157,11 @@ def draw_scatter(Y: list,
         plt.vlines(x=len(Y[0])-3, ymin=y_min, ymax=y_max, color=vline_color, linestyle=vline_linestyle)
         plt.vlines(x=len(Y[0])-2, ymin=y_min, ymax=y_max, color=vline_color, linestyle=vline_linestyle)
         plt.vlines(x=len(Y[0])-1, ymin=y_min, ymax=y_max, color=vline_color, linestyle=vline_linestyle)
-    # if show_label:
-    #     plt.legend()
+    if show_label:
+        if legend_right_pos:
+            plt.legend(loc='upper right')
+        else:
+            plt.legend(loc='upper left')
     plt.tick_params(axis='y', left=True, right=True, labelleft=True, labelright=True)
     plt.tick_params(axis='x', top=True, bottom=True, labeltop=True, labelbottom=True)
     plt.margins(x=0, y=0)
