@@ -296,7 +296,8 @@ def analyze_previous(selected,
                      lengths,
                      show_diff,
                      min_max_last_num_length,
-                     save_fig
+                     save_fig,
+                     fig_size=(12,6)
                     ):
     """ analyze_previous """
     freq_parts = get_frequency(num_data)
@@ -421,6 +422,7 @@ def get_information_v2(selected,
                        vline_color='black',
                        vline_linestyle='dotted',
                        vline_poses=[],
+                       fig_size=(12,6),
                        ):
     """ get_information_v2 """
     length = 8
@@ -452,7 +454,7 @@ def get_information_v2(selected,
                  ext_datas=ext_datas,
                  helper_line_nums=helper_line_nums_1,
                  marker_size=3,
-                 fig_size=(12,6),
+                 fig_size=fig_size,
                  save_fig=save_fig,
                  show_time=False,
                  show_vline=show_vline,
@@ -472,7 +474,8 @@ def get_information_v2(selected,
                      lengths=lengths,
                      show_diff=show_diff,
                      min_max_last_num_length=min_max_last_num_length,
-                     save_fig=save_fig
+                     save_fig=save_fig,
+                     fig_size=fig_size
                    )
 
 
